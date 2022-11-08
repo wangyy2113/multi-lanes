@@ -15,7 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /*
- * 影子Exchange, Queue, Binding生成
+ * 将Exchange, Queue, Binding修改为带featureTag并创建
  *
  */
 @ConditionalOnConfig("multi-lanes.rabbit.enable")
