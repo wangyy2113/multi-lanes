@@ -3,19 +3,13 @@ package com.wangyy.multilanes.core.rabbitmq.init;
 import com.wangyy.multilanes.core.annotation.ConditionalOnConfig;
 import com.wangyy.multilanes.core.trace.FTConstants;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
+import com.wangyy.multilanes.core.utils.ReflectionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,23 +20,17 @@ import java.util.List;
  */
 @ConditionalOnConfig("multi-lanes.rabbit.enable")
 @Slf4j
-@Component
-public class RabbitDeclarableMultiLanesIni implements ApplicationContextAware {
-
-    @Autowired
-    private RabbitAdmin rabbitAdmin;
+@Configuration
+public class RabbitDeclarableMultiLanesIni {
 
     private ApplicationContext applicationContext;
 
-    @Bean
-    @ConditionalOnMissingBean
-    public RabbitAdmin rabbitAdmin(RabbitTemplate rabbitTemplate) {
-        return new RabbitAdmin(rabbitTemplate);
+    public RabbitDeclarableMultiLanesIni(ApplicationContext applicationContext) throws Exception {
+        this.applicationContext = applicationContext;
+        rabbitExchangeIni();
     }
 
-
-    @PostConstruct
-    public void rabbitExchangeIni() {
+    private void rabbitExchangeIni() throws Exception  {
         String featureTag = FeatureTagContext.getDEFAULT();
         boolean needMock = !featureTag.equals(FTConstants.FEATURE_TAG_BASE_LANE_VALUE);
         if (!needMock) {
@@ -55,55 +43,43 @@ public class RabbitDeclarableMultiLanesIni implements ApplicationContextAware {
         log.info("[multi-lanes] RabbitMQ mock finish");
     }
 
-    private void mockExchangeQueueBinding(String featureTag) {
+    private void mockExchangeQueueBinding(String featureTag) throws Exception  {
         applicationContext.getBeansOfType(RabbitDeclarableMultiLanesIni.class);
         List<Exchange> contextExchanges = new LinkedList(this.applicationContext.getBeansOfType(Exchange.class).values());
         List<Queue> contextQueues = new LinkedList(this.applicationContext.getBeansOfType(Queue.class).values());
         List<Binding> contextBindings = new LinkedList(this.applicationContext.getBeansOfType(Binding.class).values());
         processDeclarables(contextExchanges, contextQueues, contextBindings);
 
-        contextExchanges.stream()
-                .filter(ce -> !ce.isInternal())
-                .forEach(ce -> {
-                    String mockExchangeName = buildWithFeatureTag(ce.getName(), featureTag);
-                    Exchange mockExchange = null;
-                    switch (ce.getType()) {
-                        case "topic":
-                            mockExchange = new TopicExchange(mockExchangeName, false, true);
-                            break;
-                        case "direct":
-                            mockExchange = new DirectExchange(mockExchangeName, false, true);
-                            break;
-                        case "headers":
-                            mockExchange = new HeadersExchange(mockExchangeName, false, true);
-                            break;
-                        case "fanout":
-                            mockExchange = new FanoutExchange(mockExchangeName, false, true);
-                            break;
-                        default:
-                            throw new IllegalArgumentException("RabbitExchange Type is not supported for now : " + ce.getType());
-                    }
-                    if (mockExchange != null) {
-                        rabbitAdmin.declareExchange(mockExchange);
-                        log.info("[multi-lanes] RabbitMQ mock Exchange:{}", mockExchange);
-                    }
-                });
+        for (Exchange ce : contextExchanges) {
+            if (ce.isInternal()) {
+                continue;
+            }
+            String mockExchangeName = buildWithFeatureTag(ce.getName(), featureTag);
+            Field nameFiled = AbstractExchange.class.getDeclaredField("name");
+            ReflectionUtils.setField(nameFiled, mockExchangeName, ce);
+            log.info("[multi-lanes] RabbitMQ mock Exchange:{}", ce);
+        }
 
-
-        contextQueues.forEach(cq -> {
+        for (Queue cq : contextQueues) {
             String mockQueueName = buildWithFeatureTag(cq.getName(), featureTag);
-            Queue mockQueue = new Queue(mockQueueName, false, false, true);
-            rabbitAdmin.declareQueue(mockQueue);
-            log.info("[multi-lanes] RabbitMQ mock Queue:{}", mockQueue);
-        });
+            Field nameFiled = Queue.class.getDeclaredField("name");
+            Field actualNameFiled = Queue.class.getDeclaredField("actualName");
+            ReflectionUtils.setField(nameFiled, mockQueueName, cq);
+            ReflectionUtils.setField(actualNameFiled, mockQueueName, cq);
+            log.info("[multi-lanes] RabbitMQ mock Queue:{}", cq);
+        }
 
-        contextBindings.forEach(cb -> {
-            String desti = buildWithFeatureTag(cb.getDestination(), featureTag);
-            String exchange = buildWithFeatureTag(cb.getExchange(), featureTag);
-            Binding mockBinding = new Binding(desti, cb.getDestinationType(), exchange, cb.getRoutingKey(), cb.getArguments());
-            rabbitAdmin.declareBinding(mockBinding);
-            log.info("[multi-lanes] RabbitMQ mock Binding:{}", mockBinding);
-        });
+        for (Binding cb : contextBindings) {
+            String mockDestination = buildWithFeatureTag(cb.getDestination(), featureTag);
+            String mockExchange = buildWithFeatureTag(cb.getExchange(), featureTag);
+
+            Field destinationFiled = Binding.class.getDeclaredField("destination");
+            Field exchangeFiled = Binding.class.getDeclaredField("exchange");
+            ReflectionUtils.setField(destinationFiled, mockDestination, cb);
+            ReflectionUtils.setField(exchangeFiled, mockExchange, cb);
+
+            log.info("[multi-lanes] RabbitMQ mock Binding:{}", cb);
+        }
     }
 
     /*
@@ -129,9 +105,4 @@ public class RabbitDeclarableMultiLanesIni implements ApplicationContextAware {
         return str + "_" + featureTag;
     }
 
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
 }
