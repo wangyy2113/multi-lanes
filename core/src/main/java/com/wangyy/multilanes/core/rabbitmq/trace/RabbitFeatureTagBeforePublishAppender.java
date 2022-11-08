@@ -1,4 +1,4 @@
-package com.wangyy.multilanes.core.trace.rabbit;
+package com.wangyy.multilanes.core.rabbitmq.trace;
 
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import org.springframework.amqp.AmqpException;
