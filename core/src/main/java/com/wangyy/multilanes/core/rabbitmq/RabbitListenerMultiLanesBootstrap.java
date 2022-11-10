@@ -1,5 +1,6 @@
 package com.wangyy.multilanes.core.rabbitmq;
 
+import com.wangyy.multilanes.core.annotation.ConditionalOnConfig;
 import com.wangyy.multilanes.core.trace.FTConstants;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import com.wangyy.multilanes.core.utils.ReflectionUtils;
@@ -26,6 +27,7 @@ import java.util.stream.Stream;
  * @RabbitListener
  *
  */
+@ConditionalOnConfig("multi-lanes.rabbit.enable")
 @Slf4j
 @Component
 public class RabbitListenerMultiLanesBootstrap implements BeanDefinitionRegistryPostProcessor, PriorityOrdered {
