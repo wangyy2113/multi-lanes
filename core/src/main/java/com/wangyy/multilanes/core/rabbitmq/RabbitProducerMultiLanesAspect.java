@@ -14,12 +14,13 @@ import org.springframework.util.StringUtils;
 /*
  * Rabbit Producer 发送消息时，exchange打上featureTag
  *
+ *
  */
 @ConditionalOnConfig("multi-lanes.rabbit.enable")
 @Slf4j
 @Aspect
 @Component
-public class RabbitProducerMultiLanesBootstrap {
+public class RabbitProducerMultiLanesAspect {
 
     private static final String EXCHANGE = "exchange";
 

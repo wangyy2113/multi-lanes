@@ -1,24 +1,15 @@
-package com.wangyy.multilanes.core.rabbitmq;
+package com.wangyy.multilanes.core.rabbitmq.init;
 
-import com.wangyy.multilanes.core.annotation.ConditionalOnConfig;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import com.wangyy.multilanes.core.utils.FeatureTagUtils;
 import com.wangyy.multilanes.core.utils.ReflectionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.core.Ordered;
-import org.springframework.core.PriorityOrdered;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,18 +17,22 @@ import java.util.stream.Stream;
  * Rabbit Listener监听队列需要打上featureTag
  *
  * 声明listener的场景有：
- * 1）声明MessageListenerContainer，需要修改MessageListenerContainer中的queues Name
- * 2）@RabbitListener，需要修改注解中的QueueName
+ * 1）声明MessageListenerContainer，需要修改MessageListenerContainer中的queues Name {@link RabbitListenerContainerMultiLanesIni}
+ *
+ * 2）@RabbitListener，需要修改注解中的QueueName {@link RabbitAnnotationListenerMultiLanesIni}
  * 3) 自定义annotation等等，需要增加相应打tag逻辑
  *
  */
-@ConditionalOnConfig("multi-lanes.rabbit.enable")
 @Slf4j
-@Component
-public class RabbitListenerMultiLanesBootstrap implements BeanDefinitionRegistryPostProcessor, PriorityOrdered {
+public class RabbitAnnotationListenerMultiLanesIni {
 
-    @Override
-    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+    private BeanDefinitionRegistry registry;
+
+    public RabbitAnnotationListenerMultiLanesIni(BeanDefinitionRegistry registry) {
+        this.registry = registry;
+    }
+
+    public void init() {
         if (!FeatureTagUtils.needTag()) {
             log.info("main-lane listener need not to mock");
             return;
@@ -90,37 +85,5 @@ public class RabbitListenerMultiLanesBootstrap implements BeanDefinitionRegistry
 
         ReflectionUtils.changeAnnotationValue(annotation, "queues", queuesWithFeatureTag);
         log.info("[multi-lanes] RabbitMQ mock Listener class:{} Annotation:{} newQueues:{}", clazz.getName(), annotation, queuesWithFeatureTag);
-    }
-
-    @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        if (!FeatureTagUtils.needTag()) {
-            log.info("main-lane listenerContainer need not to mock");
-            return;
-        }
-        mockMessageListenerContainer(beanFactory);
-    }
-
-    private void mockMessageListenerContainer(ConfigurableListableBeanFactory beanFactory) {
-        Map<String, AbstractMessageListenerContainer> listenerContainerMap = beanFactory.getBeansOfType(AbstractMessageListenerContainer.class);
-        if (listenerContainerMap.isEmpty()) {
-            return;
-        }
-        String featureTag = FeatureTagContext.getDEFAULT();
-        listenerContainerMap.values().forEach(lc -> {
-            String[] queueNames = lc.getQueueNames();
-            for (int i = 0; i < queueNames.length; i++) {
-                String qn = queueNames[i];
-                if (!qn.endsWith(featureTag)) {
-                    queueNames[i] = FeatureTagUtils.buildWithFeatureTag(qn, featureTag);
-                }
-            }
-            lc.setQueueNames(queueNames);
-        });
-    }
-
-    @Override
-    public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE;
     }
 }
