@@ -6,6 +6,7 @@ import com.wangyy.multilanes.core.utils.FeatureTagUtils;
 import com.wangyy.multilanes.core.utils.ReflectionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -17,14 +18,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /*
  * Rabbit Listener监听队列需要打上featureTag
  *
- * 很多场景是通过注解的方式声明listener，注解中会指定QueueName等字段，Multi-Lanes需要将QueueName加上featureTag
- * @RabbitListener
+ * 声明listener的场景有：
+ * 1）声明MessageListenerContainer，需要修改MessageListenerContainer中的queues Name
+ * 2）@RabbitListener，需要修改注解中的QueueName
+ * 3) 自定义annotation等等，需要增加相应打tag逻辑
  *
  */
 @ConditionalOnConfig("multi-lanes.rabbit.enable")
@@ -53,8 +57,13 @@ public class RabbitListenerMultiLanesBootstrap implements BeanDefinitionRegistry
                 log.error("invalid class name: " + definition.getBeanClassName(), e);
                 continue;
             }
-            rabbitListenerMod(featureTag, clazz);
+
+            annotationMock(featureTag, clazz);
         }
+    }
+
+    private void annotationMock(String featureTag, Class clazz) {
+        rabbitListenerMod(featureTag, clazz);
     }
 
     private void rabbitListenerMod(String featureTag, Class clazz) {
@@ -85,7 +94,29 @@ public class RabbitListenerMultiLanesBootstrap implements BeanDefinitionRegistry
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        if (!FeatureTagUtils.needTag()) {
+            log.info("main-lane listenerContainer need not to mock");
+            return;
+        }
+        mockMessageListenerContainer(beanFactory);
+    }
 
+    private void mockMessageListenerContainer(ConfigurableListableBeanFactory beanFactory) {
+        Map<String, AbstractMessageListenerContainer> listenerContainerMap = beanFactory.getBeansOfType(AbstractMessageListenerContainer.class);
+        if (listenerContainerMap.isEmpty()) {
+            return;
+        }
+        String featureTag = FeatureTagContext.getDEFAULT();
+        listenerContainerMap.values().forEach(lc -> {
+            String[] queueNames = lc.getQueueNames();
+            for (int i = 0; i < queueNames.length; i++) {
+                String qn = queueNames[i];
+                if (!qn.endsWith(featureTag)) {
+                    queueNames[i] = FeatureTagUtils.buildWithFeatureTag(qn, featureTag);
+                }
+            }
+            lc.setQueueNames(queueNames);
+        });
     }
 
     @Override
