@@ -1,7 +1,7 @@
 package com.wangyy.multilanes.core.rabbitmq.init;
 
-import com.wangyy.multilanes.core.trace.FTConstants;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
+import com.wangyy.multilanes.core.utils.FeatureTagUtils;
 import com.wangyy.multilanes.core.utils.ReflectionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
@@ -11,8 +11,6 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-
-import static com.wangyy.multilanes.core.trace.FTConstants.buildWithFeatureTag;
 
 /*
  * 将Exchange, Queue, Binding修改为带featureTag
@@ -29,13 +27,11 @@ public class RabbitDeclarableMultiLanesIni {
     }
 
     public void init() throws Exception  {
-        String featureTag = FeatureTagContext.getDEFAULT();
-        boolean needMock = !featureTag.equals(FTConstants.FEATURE_TAG_BASE_LANE_VALUE);
-        if (!needMock) {
+        if (!FeatureTagUtils.needTag()) {
             log.info("main-lane need not to mock");
             return;
         }
-
+        String featureTag = FeatureTagContext.getDEFAULT();
         mockExchangeQueueBinding(featureTag);
 
         log.info("[multi-lanes] RabbitMQ mock finished");
@@ -56,7 +52,7 @@ public class RabbitDeclarableMultiLanesIni {
                 log.info("[multi-lanes] RabbitMQ exchange mock SKIP. {}", ce.getName());
                 continue;
             }
-            String mockExchangeName = buildWithFeatureTag(ce.getName(), featureTag);
+            String mockExchangeName = FeatureTagUtils.buildWithFeatureTag(ce.getName(), featureTag);
             Field nameFiled = AbstractExchange.class.getDeclaredField("name");
             ReflectionUtils.setField(nameFiled, mockExchangeName, ce);
             log.info("[multi-lanes] RabbitMQ mock Exchange:{}", ce);
@@ -67,7 +63,7 @@ public class RabbitDeclarableMultiLanesIni {
                 log.info("[multi-lanes] RabbitMQ queue mock SKIP. {}", cq.getName());
                 continue;
             }
-            String mockQueueName = buildWithFeatureTag(cq.getName(), featureTag);
+            String mockQueueName = FeatureTagUtils.buildWithFeatureTag(cq.getName(), featureTag);
             Field nameFiled = Queue.class.getDeclaredField("name");
             Field actualNameFiled = Queue.class.getDeclaredField("actualName");
             ReflectionUtils.setField(nameFiled, mockQueueName, cq);
@@ -80,8 +76,8 @@ public class RabbitDeclarableMultiLanesIni {
                 log.info("[multi-lanes] RabbitMQ binding mock SKIP. {}", cb.getExchange());
                 continue;
             }
-            String mockDestination = buildWithFeatureTag(cb.getDestination(), featureTag);
-            String mockExchange = buildWithFeatureTag(cb.getExchange(), featureTag);
+            String mockDestination = FeatureTagUtils.buildWithFeatureTag(cb.getDestination(), featureTag);
+            String mockExchange = FeatureTagUtils.buildWithFeatureTag(cb.getExchange(), featureTag);
 
             Field destinationFiled = Binding.class.getDeclaredField("destination");
             Field exchangeFiled = Binding.class.getDeclaredField("exchange");

@@ -1,8 +1,8 @@
 package com.wangyy.multilanes.core.rabbitmq;
 
 import com.wangyy.multilanes.core.annotation.ConditionalOnConfig;
-import com.wangyy.multilanes.core.trace.FTConstants;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
+import com.wangyy.multilanes.core.utils.FeatureTagUtils;
 import com.wangyy.multilanes.core.utils.ReflectionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -34,13 +34,11 @@ public class RabbitListenerMultiLanesBootstrap implements BeanDefinitionRegistry
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        String featureTag = FeatureTagContext.getDEFAULT();
-        boolean needMock = !featureTag.equals(FTConstants.FEATURE_TAG_BASE_LANE_VALUE);
-        if (!needMock) {
+        if (!FeatureTagUtils.needTag()) {
             log.info("main-lane listener need not to mock");
             return;
         }
-
+        String featureTag = FeatureTagContext.getDEFAULT();
         String[] beanNames = registry.getBeanDefinitionNames();
 
         for (String beanName : beanNames) {
@@ -72,7 +70,7 @@ public class RabbitListenerMultiLanesBootstrap implements BeanDefinitionRegistry
 
         List<String> ql = Stream.of(queues)
                 .filter(q -> !q.endsWith(featureTag))
-                .map(q -> FTConstants.buildWithFeatureTag(q, featureTag))
+                .map(q -> FeatureTagUtils.buildWithFeatureTag(q, featureTag))
                 .collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(ql)) {

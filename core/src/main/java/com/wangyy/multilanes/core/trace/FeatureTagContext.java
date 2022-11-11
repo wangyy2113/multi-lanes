@@ -35,6 +35,14 @@ public class FeatureTagContext {
         return ft == null ? DEFAULT : ft;
     }
 
+    /*
+     * 当前流量位于base-line
+     *
+     */
+    public static boolean isBaseLine() {
+        return get().equals(FTConstants.FEATURE_TAG_BASE_LANE_VALUE);
+    }
+
     public static void set(@NonNull String featureTag) {
         FEATURE_TAG.set(featureTag);
     }

@@ -5,6 +5,10 @@ import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
 
+/*
+ * Rabbit消息发送前Header中设置featureTag信息
+ *
+ */
 public class RabbitFeatureTagBeforePublishAppender implements MessagePostProcessor {
 
     @Override

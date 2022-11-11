@@ -12,9 +12,11 @@ public class RabbitFeatureTagAfterReceiveAppender implements MessagePostProcesso
     public Message postProcessMessage(Message message) throws AmqpException {
         Object featureTagObj = message.getMessageProperties().getHeaders().get(FTConstants.FEATURE_TAG_PATH);
         String featureTag;
-        if (featureTagObj == null) {
+        if (featureTagObj == null || featureTagObj.toString().equals(FTConstants.FEATURE_TAG_BASE_LANE_VALUE)) {
+            //main-line的消息，打上当前line的tag
             featureTag = FeatureTagContext.getDEFAULT();
         } else {
+            //非main-line的消息，维持tag
             featureTag = featureTagObj.toString();
             //TODO check featureTag illegal
         }
