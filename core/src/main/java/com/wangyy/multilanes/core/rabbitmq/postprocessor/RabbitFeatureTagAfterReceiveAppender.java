@@ -6,6 +6,10 @@ import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
 
+/*
+ * 收到消息后根据header中的featureTag信息将当前线程流量打标
+ *
+ */
 public class RabbitFeatureTagAfterReceiveAppender implements MessagePostProcessor {
 
     @Override

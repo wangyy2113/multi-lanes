@@ -1,4 +1,4 @@
-package com.wangyy.multilanes.core.rabbitmq.init;
+package com.wangyy.multilanes.core.rabbitmq.solver;
 
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import com.wangyy.multilanes.core.utils.FeatureTagUtils;
@@ -17,15 +17,15 @@ import java.util.List;
  *
  */
 @Slf4j
-public class RabbitDeclarableMultiLanesIni {
+public class RabbitDeclarableMultiLanesSolver {
 
     private ConfigurableListableBeanFactory beanFactory;
 
-    public RabbitDeclarableMultiLanesIni(ConfigurableListableBeanFactory beanFactory) {
+    public RabbitDeclarableMultiLanesSolver(ConfigurableListableBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 
-    public void init() {
+    public void lance() {
         if (!FeatureTagUtils.needTag()) {
             log.info("main-lane need not to mock");
             return;
@@ -58,6 +58,8 @@ public class RabbitDeclarableMultiLanesIni {
             Field nameFiled = AbstractExchange.class.getDeclaredField("name");
             ReflectionUtils.setField(nameFiled, mockExchangeName, ce);
             log.info("[multi-lanes] RabbitMQ mock Exchange:{}", ce);
+
+            //TODO add mockExchangeName into Redis
         }
 
         for (Queue cq : contextQueues) {

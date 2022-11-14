@@ -1,4 +1,4 @@
-package com.wangyy.multilanes.core.rabbitmq.init;
+package com.wangyy.multilanes.core.rabbitmq.solver;
 
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import com.wangyy.multilanes.core.utils.FeatureTagUtils;
@@ -19,15 +19,15 @@ import java.util.Map;
  *
  */
 @Slf4j
-public class RabbitListenerContainerMultiLanesIni {
+public class RabbitListenerContainerMultiLanesSolver {
 
     private ConfigurableListableBeanFactory beanFactory;
 
-    public RabbitListenerContainerMultiLanesIni(ConfigurableListableBeanFactory beanFactory) {
+    public RabbitListenerContainerMultiLanesSolver(ConfigurableListableBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 
-    public void init() {
+    public void lance() {
         if (!FeatureTagUtils.needTag()) {
             log.info("main-lane listenerContainer need not to mock");
             return;
@@ -50,6 +50,7 @@ public class RabbitListenerContainerMultiLanesIni {
                 }
             }
             lc.setQueueNames(queueNames);
+
             log.info("[multi-lanes] RabbitMQ mock MessageListenerContainer {} queueNames:{}", lc);
         });
     }

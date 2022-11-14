@@ -6,10 +6,10 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
 
 /*
- * Rabbit消息发送前Header中设置featureTag信息
+ * RabbitTemplate消息发送前Header中设置featureTag信息
  *
  */
-public class RabbitFeatureTagBeforePublishAppender implements MessagePostProcessor {
+public class RabbitTemplateFeatureTagBeforePublishAppender implements MessagePostProcessor {
 
     @Override
     public Message postProcessMessage(Message message) throws AmqpException {
@@ -17,12 +17,12 @@ public class RabbitFeatureTagBeforePublishAppender implements MessagePostProcess
         return message;
     }
 
-    public static RabbitFeatureTagBeforePublishAppender instance() {
+    public static RabbitTemplateFeatureTagBeforePublishAppender instance() {
         return InstanceHolder.APPENDER;
     }
 
     private static class InstanceHolder {
-        private static final RabbitFeatureTagBeforePublishAppender APPENDER = new RabbitFeatureTagBeforePublishAppender();
+        private static final RabbitTemplateFeatureTagBeforePublishAppender APPENDER = new RabbitTemplateFeatureTagBeforePublishAppender();
     }
 
 }

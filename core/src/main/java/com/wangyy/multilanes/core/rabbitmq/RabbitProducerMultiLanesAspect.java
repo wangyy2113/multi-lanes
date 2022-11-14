@@ -1,6 +1,7 @@
 package com.wangyy.multilanes.core.rabbitmq;
 
 import com.wangyy.multilanes.core.annotation.ConditionalOnConfig;
+import com.wangyy.multilanes.core.rabbitmq.service.RabbitNodeWatcher;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import com.wangyy.multilanes.core.utils.FeatureTagUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -8,11 +9,12 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.CodeSignature;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /*
- * Rabbit Producer 发送消息时，exchange打上featureTag
+ * Rabbit Producer 发送消息时，exchange打上featureTag，将消息优先路由至feature Exchange
  *
  *
  */
@@ -21,6 +23,9 @@ import org.springframework.util.StringUtils;
 @Aspect
 @Component
 public class RabbitProducerMultiLanesAspect {
+
+    @Autowired
+    private RabbitNodeWatcher rabbitNodeWatcher;
 
     private static final String EXCHANGE = "exchange";
 
@@ -54,7 +59,8 @@ public class RabbitProducerMultiLanesAspect {
                 if (FeatureTagContext.isBaseLine()) {
                     break;
                 }
-                String mockExchangeParam = mockExchangeParam(exchangeParamValue);
+
+                String mockExchangeParam = targetExchangeParam(exchangeParamValue);
                 args[i] = mockExchangeParam;
             }
         }
@@ -64,12 +70,18 @@ public class RabbitProducerMultiLanesAspect {
         return pjp.proceed(args);
     }
 
-    private String mockExchangeParam(String exchangeParam) {
+    private String targetExchangeParam(String exchangeParam) throws Exception {
         String ft = FeatureTagContext.get();
         if (exchangeParam.endsWith(ft)) {
             return exchangeParam;
         }
-        return FeatureTagUtils.buildWithFeatureTag(exchangeParam, ft);
+        //featureTag节点存在则发送至feat Exchange
+        String mockExchange = FeatureTagUtils.buildWithFeatureTag(exchangeParam, ft);
+        if (rabbitNodeWatcher.isExchangeExist(mockExchange)) {
+            return mockExchange;
+        }
+        //否则发送至base-line Exchange
+        return exchangeParam;
     }
 
 

@@ -1,4 +1,4 @@
-package com.wangyy.multilanes.core.rabbitmq.init;
+package com.wangyy.multilanes.core.rabbitmq.solver;
 
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import com.wangyy.multilanes.core.utils.FeatureTagUtils;
@@ -24,15 +24,15 @@ import java.util.stream.Stream;
  *
  */
 @Slf4j
-public class RabbitAnnotationListenerMultiLanesIni {
+public class RabbitAnnotationListenerMultiLanesSolver {
 
     private BeanDefinitionRegistry registry;
 
-    public RabbitAnnotationListenerMultiLanesIni(BeanDefinitionRegistry registry) {
+    public RabbitAnnotationListenerMultiLanesSolver(BeanDefinitionRegistry registry) {
         this.registry = registry;
     }
 
-    public void init() {
+    public void lance() {
         if (!FeatureTagUtils.needTag()) {
             log.info("main-lane listener need not to mock");
             return;
