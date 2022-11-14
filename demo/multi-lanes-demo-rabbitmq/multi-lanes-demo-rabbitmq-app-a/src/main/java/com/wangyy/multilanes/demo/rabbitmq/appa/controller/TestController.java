@@ -24,7 +24,7 @@ public class TestController {
         //set featureTag
         FeatureTagContext.set(featureTag);
 
-        String msg = String.format("[A_%s]", FeatureTagContext.get());
+        String msg = String.format("[%s-line::A_%s]", FeatureTagContext.getDEFAULT(), FeatureTagContext.get());
         rabbitTemplate.convertAndSend(exchange, "", new TestMsg(msg));
 
         return "suc " + System.currentTimeMillis();
