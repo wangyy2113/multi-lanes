@@ -19,4 +19,12 @@
         <module>multi-lanes-demo-rabbitmq-app-d</module>
     </modules>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.wangyy</groupId>
+            <artifactId>multi-lanes-core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
 </project>
