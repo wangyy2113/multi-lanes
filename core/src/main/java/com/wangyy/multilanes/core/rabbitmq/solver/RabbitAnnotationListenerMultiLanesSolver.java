@@ -34,7 +34,7 @@ public class RabbitAnnotationListenerMultiLanesSolver {
 
     public void lance() {
         if (!FeatureTagUtils.needTag()) {
-            log.info("main-lane listener need not to mock");
+            log.info("base-lane listener need not to mock");
             return;
         }
         String featureTag = FeatureTagContext.getDEFAULT();

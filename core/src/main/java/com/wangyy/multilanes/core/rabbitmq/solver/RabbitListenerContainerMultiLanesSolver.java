@@ -29,7 +29,7 @@ public class RabbitListenerContainerMultiLanesSolver {
 
     public void lance() {
         if (!FeatureTagUtils.needTag()) {
-            log.info("main-lane listenerContainer need not to mock");
+            log.info("base-lane listenerContainer need not to mock");
             return;
         }
         mockMessageListenerContainer(beanFactory);

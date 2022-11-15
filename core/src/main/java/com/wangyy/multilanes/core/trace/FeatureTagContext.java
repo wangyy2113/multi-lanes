@@ -9,7 +9,7 @@ import lombok.NonNull;
 /*
  *
  * 流量的featureTag, 每一个请求都有自己的featureTag
- * 默认取配置文件中的${featureTag}, 若无相关配置则默认main
+ * 默认取配置文件中的${featureTag}, 若无相关配置则默认base
  *
  */
 public class FeatureTagContext {
@@ -20,7 +20,7 @@ public class FeatureTagContext {
 
     private static final TransmittableThreadLocal<String> FEATURE_TAG = new TransmittableThreadLocal<>();
 
-    //默认取配置文件中的${featureTag}, 若无相关配置则默认main
+    //默认取配置文件中的${featureTag}, 若无相关配置则默认base
     @Getter
     private static final String DEFAULT;
 

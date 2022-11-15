@@ -27,7 +27,7 @@ public class RabbitDeclarableMultiLanesSolver {
 
     public void lance() {
         if (!FeatureTagUtils.needTag()) {
-            log.info("main-lane need not to mock");
+            log.info("base-lane need not to mock");
             return;
         }
         String featureTag = FeatureTagContext.getDEFAULT();
