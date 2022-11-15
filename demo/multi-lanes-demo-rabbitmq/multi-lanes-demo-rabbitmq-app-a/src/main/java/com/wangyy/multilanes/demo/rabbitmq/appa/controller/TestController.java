@@ -20,7 +20,7 @@ public class TestController {
 
     @GetMapping("/rabbit")
     public Object reload(@RequestParam(value = "exchange") String exchange,
-                         @RequestParam(value = "featureTag", defaultValue = "main") String featureTag) {
+                         @RequestParam(value = "featureTag", defaultValue = "base") String featureTag) {
         //set featureTag
         FeatureTagContext.set(featureTag);
 

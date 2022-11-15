@@ -1,5 +1,5 @@
 server:
-  port: 8009
+  port: 8008
 
 spring:
   rabbitmq:
