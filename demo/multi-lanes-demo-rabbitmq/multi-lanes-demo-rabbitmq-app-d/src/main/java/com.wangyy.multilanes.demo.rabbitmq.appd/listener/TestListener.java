@@ -21,6 +21,6 @@ public class TestListener {
     @RabbitHandler
     public void onMessage(@Payload TestMsg message) {
         String msg = message.getMsg() + " => " + String.format("[%s-line::D_%s]", FeatureTagContext.getDEFAULT(), FeatureTagContext.get());
-        log.info("[multi-lanes=RabbitMQ AppD] {}", msg);
+        log.info("AppD multi-lanes=RabbitMQ {}", msg);
     }
 }
