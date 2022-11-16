@@ -20,10 +20,8 @@ public class TestController {
 
     @GetMapping("/rabbit")
     public Object reload(@RequestParam(value = "exchange") String exchange) {
-        String msg = String.format("[D_%s]", FeatureTagContext.get());
+        String msg = String.format("[%s-line::D_%s]", FeatureTagContext.getDEFAULT(), FeatureTagContext.get());
         rabbitTemplate.convertAndSend(exchange, "", new TestMsg(msg));
-        //rabbitTemplate.convertAndSend(exchange, routingKey, msg);
-        //rabbitTemplate.send(exchange, routingKey, MessageBuilder.withBody(toByteArray(new TestMsg(msg))).build(), null);
         return "suc " + System.currentTimeMillis();
     }
 }

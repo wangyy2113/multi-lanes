@@ -21,7 +21,7 @@ import java.util.List;
  *
  *
  */
-@ConditionalOnConfig("multi-lanes.rabbit.enable")
+@ConditionalOnConfig("multi-lanes.enable")
 @Slf4j
 @Component
 public class RabbitMultiLanesContextsIni {

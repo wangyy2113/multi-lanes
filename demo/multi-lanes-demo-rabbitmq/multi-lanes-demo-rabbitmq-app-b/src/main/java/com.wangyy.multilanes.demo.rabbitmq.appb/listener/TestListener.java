@@ -26,7 +26,7 @@ public class TestListener {
     @RabbitHandler
     public void onMessage(@Payload TestMsg message) {
         String msg = message.getMsg() + " => " + String.format("[%s-line::B_%s]", FeatureTagContext.getDEFAULT(), FeatureTagContext.get());
-        log.info("[multi-lanes=RabbitMQ AppB] {}", FeatureTagContext.get(), msg);
+        log.info("[multi-lanes=RabbitMQ AppB] {}", msg);
 
         new Thread(() -> rabbitTemplate.convertAndSend("c_exchange", "", new TestMsg(msg))).start();
     }

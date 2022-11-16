@@ -19,11 +19,7 @@ public class TestController {
     private RabbitTemplate rabbitTemplate;
 
     @GetMapping("/rabbit")
-    public Object reload(@RequestParam(value = "exchange") String exchange,
-                         @RequestParam(value = "featureTag", defaultValue = "base") String featureTag) {
-        //set featureTag
-        FeatureTagContext.set(featureTag);
-
+    public Object reload(@RequestParam(value = "exchange") String exchange) {
         String msg = String.format("[%s-line::A_%s]", FeatureTagContext.getDEFAULT(), FeatureTagContext.get());
         rabbitTemplate.convertAndSend(exchange, "", new TestMsg(msg));
 

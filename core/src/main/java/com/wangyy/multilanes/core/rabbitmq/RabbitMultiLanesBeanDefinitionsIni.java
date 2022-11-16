@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  * RabbitMQ 泳道资源BeanDefinitions初始化
  *
  */
-@ConditionalOnConfig("multi-lanes.rabbit.enable")
+@ConditionalOnConfig("multi-lanes.enable")
 @Slf4j
 @Component
 public class RabbitMultiLanesBeanDefinitionsIni implements BeanDefinitionRegistryPostProcessor, PriorityOrdered {

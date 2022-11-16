@@ -18,7 +18,7 @@ import org.springframework.util.StringUtils;
  *
  *
  */
-@ConditionalOnConfig("multi-lanes.rabbit.enable")
+@ConditionalOnConfig("multi-lanes.enable")
 @Slf4j
 @Aspect
 @Component

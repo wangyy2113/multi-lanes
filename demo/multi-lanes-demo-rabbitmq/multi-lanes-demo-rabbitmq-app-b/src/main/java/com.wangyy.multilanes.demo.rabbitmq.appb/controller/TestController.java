@@ -16,11 +16,9 @@ public class TestController {
     private RabbitTemplate rabbitTemplate;
 
     @GetMapping("/rabbit")
-    public Object reload(@RequestParam(value = "exchange") String exchange) {
-        String msg = String.format("[%s-line::A_%s]", FeatureTagContext.getDEFAULT(), FeatureTagContext.get());
+    public Object send(@RequestParam(value = "exchange") String exchange) {
+        String msg = String.format("[%s-line::B_%s]", FeatureTagContext.getDEFAULT(), FeatureTagContext.get());
         rabbitTemplate.convertAndSend(exchange, "", new TestMsg(msg));
-        //rabbitTemplate.convertAndSend(exchange, routingKey, msg);
-        //rabbitTemplate.send(exchange, routingKey, MessageBuilder.withBody(toByteArray(new TestMsg(msg))).build(), null);
         return "suc " + System.currentTimeMillis();
     }
 }
