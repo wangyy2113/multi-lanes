@@ -65,7 +65,7 @@ public class RabbitProducerMultiLanesAspect {
             }
         }
         if (args == null) {
-            return pjp.proceed();
+            return pjp.proceed(pjp.getArgs());
         }
         return pjp.proceed(args);
     }
