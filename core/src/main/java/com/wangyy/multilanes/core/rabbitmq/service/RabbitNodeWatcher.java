@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 /*
  * Rabbit Exchange节点信息存储到zk
- * Exchange节点信息用户exchange路由
+ * Exchange节点信息用于exchange路由
  *
  */
 @Component
