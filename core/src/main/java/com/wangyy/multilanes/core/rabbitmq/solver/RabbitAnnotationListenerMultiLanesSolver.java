@@ -17,9 +17,9 @@ import java.util.stream.Stream;
  * Rabbit Listener监听队列需要打上featureTag
  *
  * 声明listener的场景有：
- * 1）声明MessageListenerContainer，需要修改MessageListenerContainer中的queues Name {@link RabbitListenerContainerMultiLanesIni}
+ * 1）声明MessageListenerContainer，需要修改MessageListenerContainer中的queues Name {@link RabbitListenerContainerMultiLanesSolver}
  *
- * 2）@RabbitListener，需要修改注解中的QueueName {@link RabbitAnnotationListenerMultiLanesIni}
+ * 2）@RabbitListener，需要修改注解中的QueueName {@link RabbitAnnotationListenerMultiLanesSolver}
  * 3) 自定义annotation等等，需要增加相应打tag逻辑
  *
  */
