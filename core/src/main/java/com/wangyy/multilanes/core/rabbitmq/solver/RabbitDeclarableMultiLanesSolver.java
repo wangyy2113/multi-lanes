@@ -58,8 +58,6 @@ public class RabbitDeclarableMultiLanesSolver {
             Field nameFiled = AbstractExchange.class.getDeclaredField("name");
             ReflectionUtils.setField(nameFiled, mockExchangeName, ce);
             log.info("[multi-lanes] RabbitMQ mock Exchange:{}", ce);
-
-            //TODO add mockExchangeName into Redis
         }
 
         for (Queue cq : contextQueues) {
