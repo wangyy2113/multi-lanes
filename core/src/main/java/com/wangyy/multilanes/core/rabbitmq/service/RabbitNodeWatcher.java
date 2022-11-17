@@ -31,10 +31,18 @@ public class RabbitNodeWatcher {
             .build(exchange -> curatorFramework.checkExists().forPath(getRabbitNodePath(exchange)) != null);
 
 
+    /*
+     * 判断是否存在Exchange
+     *
+     */
     public boolean isExchangeExist(String exchange) {
         return nodeCache.get(exchange);
     }
 
+    /*
+     * 注册Exchange name到zk临时节点下
+     *
+     */
     public void registerExchange(Exchange exchange) {
         try {
             curatorFramework.create()
