@@ -1,4 +1,5 @@
 # multi-lanes
+---------------
 
 多泳道环境建设
 
@@ -12,10 +13,10 @@ docker & docker-compose & jdk1.8 & maven
 支持项
 ---------------
 
-HTTP
-RPC      TODO
-kafka    TODO
-RabbitMQ
+> * HTTP
+> * RPC       TODO
+> * kafka     TODO
+> * RabbitMQ
 
 
 
