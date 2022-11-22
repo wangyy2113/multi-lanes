@@ -1,6 +1,5 @@
-package com.wangyy.multilanes.core.rabbitmq;
+package com.wangyy.multilanes.core.rabbitmq.solver;
 
-import com.wangyy.multilanes.core.annotation.ConditionalOnConfig;
 import com.wangyy.multilanes.core.rabbitmq.service.RabbitNodeWatcher;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import com.wangyy.multilanes.core.utils.FeatureTagUtils;
@@ -9,8 +8,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.CodeSignature;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /*
@@ -18,14 +15,15 @@ import org.springframework.util.StringUtils;
  *
  *
  */
-@ConditionalOnConfig("multi-lanes.enable")
 @Slf4j
 @Aspect
-@Component
 public class RabbitProducerMultiLanesAspect {
 
-    @Autowired
     private RabbitNodeWatcher rabbitNodeWatcher;
+
+    public RabbitProducerMultiLanesAspect(RabbitNodeWatcher rabbitNodeWatcher) {
+        this.rabbitNodeWatcher = rabbitNodeWatcher;
+    }
 
     private static final String EXCHANGE = "exchange";
 
@@ -70,7 +68,7 @@ public class RabbitProducerMultiLanesAspect {
         return pjp.proceed(args);
     }
 
-    private String targetExchangeParam(String exchangeParam) throws Exception {
+    private String targetExchangeParam(String exchangeParam) {
         String ft = FeatureTagContext.get();
         if (exchangeParam.endsWith(ft)) {
             return exchangeParam;
