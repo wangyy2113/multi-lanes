@@ -17,6 +17,7 @@
 
     <modules>
         <module>multi-lanes-demo-rabbitmq</module>
+        <module>multi-lanes-demo-kafka</module>
     </modules>
 
     <properties>
