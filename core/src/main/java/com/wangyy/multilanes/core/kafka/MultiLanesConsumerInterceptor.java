@@ -9,8 +9,6 @@ import org.apache.kafka.common.header.Headers;
 import org.springframework.kafka.listener.RecordInterceptor;
 import org.springframework.kafka.support.KafkaUtils;
 
-import java.util.Arrays;
-
 /**
  * Created by houyantao on 2023/1/4
  */
@@ -30,12 +28,12 @@ public class MultiLanesConsumerInterceptor implements RecordInterceptor {
         Header featureTagObj = headers.lastHeader(FeatureTagContext.NAME);
 
         String featureTag;
-        if (featureTagObj == null || Arrays.toString(featureTagObj.value()).equals(FTConstants.FEATURE_TAG_BASE_LANE_VALUE)) {
+        if (featureTagObj == null || new String(featureTagObj.value()).equals(FTConstants.FEATURE_TAG_BASE_LANE_VALUE)) {
             //base-line的消息，打上当前line的tag
             featureTag = FeatureTagContext.getDEFAULT();
         } else {
             //非base-line的消息，维持tag
-            featureTag = Arrays.toString(featureTagObj.value());
+            featureTag = new String(featureTagObj.value());
         }
         //设置本次请求featureTag
         FeatureTagContext.set(featureTag);
@@ -59,7 +57,7 @@ public class MultiLanesConsumerInterceptor implements RecordInterceptor {
         if (featureTagObj == null) {
             return false;
         }
-        String featureTag = Arrays.toString(featureTagObj.value());
+        String featureTag = new String(featureTagObj.value());
         String currentEnv = FeatureTagContext.getDEFAULT();
         if (featureTag.equals(currentEnv)) {
             return false;

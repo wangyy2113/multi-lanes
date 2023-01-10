@@ -4,15 +4,12 @@ import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -27,27 +24,26 @@ import java.util.stream.Collectors;
  * 更改消费者监听的 topic，增加 Interceptor
  */
 @Slf4j
-@Component
 public class KafkaConsumerBeanPostProcessor implements BeanPostProcessor {
 
-    @Autowired
     private KafkaNodeWatcher nodeWatcher;
 
-    @Autowired
     private ApplicationContext applicationContext;
 
-    @Bean
-    public MultiLanesConsumerInterceptor consumerInterceptor(KafkaNodeWatcher nodeWatcher) {
-        return new MultiLanesConsumerInterceptor(nodeWatcher);
-    }
-
-    @Autowired
     private MultiLanesConsumerInterceptor consumerInterceptor;
+
+    public KafkaConsumerBeanPostProcessor(KafkaNodeWatcher nodeWatcher, ApplicationContext applicationContext, MultiLanesConsumerInterceptor consumerInterceptor) {
+        this.nodeWatcher = nodeWatcher;
+        this.applicationContext = applicationContext;
+        this.consumerInterceptor = consumerInterceptor;
+    }
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        changeListenerAnnotationTopic(bean);
-        changeContainerTopic(bean);
+        if (!FeatureTagContext.isBaseLine()) {
+            changeListenerAnnotationTopic(bean);
+            changeContainerTopic(bean);
+        }
         addInterceptorToContainer(bean);
         addInterceptorToContainerFactory(bean);
         registerContainerTopicGroupPath(bean);

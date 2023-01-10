@@ -4,21 +4,20 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
 /**
- * todo 和 rabbitWatch 整合
+ * todo 和 rabbitNodeWatch 整合
  * Created by houyantao on 2023/1/6
  */
-@Component
 public class KafkaNodeWatcher {
 
-    //todo 用构造函数？
-    @Autowired
     private CuratorFramework curatorFramework;
+
+    public KafkaNodeWatcher(CuratorFramework curatorFramework) {
+        this.curatorFramework = curatorFramework;
+    }
 
     private final LoadingCache<String, Boolean> nodeCache = Caffeine.newBuilder()
             .expireAfterWrite(2, TimeUnit.SECONDS)

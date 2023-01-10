@@ -22,7 +22,7 @@ public class KafkaAspect {
     @Before("execution(* org.apache.kafka.clients.producer.Producer.send(..))")
     public void beforeKafkaProducerSend(JoinPoint joinPoint) {
         log.info("start kafka producer intercept");
-        if (FTConstants.FEATURE_TAG_BASE_LANE_VALUE.equals(FeatureTagContext.get())) {
+        if (FeatureTagContext.isBaseLine()) {
             return;
         }
         ProducerRecord producerRecord = (ProducerRecord) joinPoint.getArgs()[0];

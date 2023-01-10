@@ -17,7 +17,6 @@ import java.util.Map;
 /**
  * Created by houyantao on 2023/1/6
  */
-@Component
 @Slf4j
 public class KafkaProducerBeanPostProcessor implements BeanPostProcessor {
 
