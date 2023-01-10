@@ -1,11 +1,13 @@
 package com.wangyy.multilanes.core.kafka;
 
+import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
@@ -34,6 +36,14 @@ public class KafkaConsumerBeanPostProcessor implements BeanPostProcessor {
     @Autowired
     private ApplicationContext applicationContext;
 
+    @Bean
+    public MultiLanesConsumerInterceptor consumerInterceptor(KafkaNodeWatcher nodeWatcher) {
+        return new MultiLanesConsumerInterceptor(nodeWatcher);
+    }
+
+    @Autowired
+    private MultiLanesConsumerInterceptor consumerInterceptor;
+
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         changeListenerAnnotationTopic(bean);
@@ -58,7 +68,7 @@ public class KafkaConsumerBeanPostProcessor implements BeanPostProcessor {
             String[] originTopic = kafkaListener.topics();
             String[] newTopics = new String[originTopic.length];
             for (int i = 0; i < originTopic.length; i++) {
-                newTopics[i] = originTopic[i] + "-back";
+                newTopics[i] = originTopic[i] + "_" + FeatureTagContext.getDEFAULT();
             }
             com.wangyy.multilanes.core.utils.ReflectionUtils.changeAnnotationValue(kafkaListener, "topics", newTopics);
             log.info("after change, kafka listener topics is {}", kafkaListener.topics());
@@ -72,16 +82,16 @@ public class KafkaConsumerBeanPostProcessor implements BeanPostProcessor {
         try {
             KafkaMessageListenerContainer kafkaMessageListenerContainer = (KafkaMessageListenerContainer) bean;
             Field field = KafkaMessageListenerContainer.class.getSuperclass().getDeclaredField("containerProperties");
-            field.setAccessible(true);  // 设置可访问性
+            field.setAccessible(true);
             ContainerProperties containerProperties = (ContainerProperties) field.get(kafkaMessageListenerContainer);  // 获取 consumerProperties 对象
             Field topicField = ContainerProperties.class.getSuperclass().getDeclaredField("topics");
-            topicField.setAccessible(true);  // 设置可访问性
+            topicField.setAccessible(true);
             String[] originTopic = (String[]) topicField.get(containerProperties);
             String[] newTopics = new String[originTopic.length];
             for (int i = 0; i < originTopic.length; i++) {
-                newTopics[i] = originTopic[i] + "-back";
+                newTopics[i] = originTopic[i] + "_" + FeatureTagContext.getDEFAULT();
             }
-            topicField.set(containerProperties, newTopics);  // 修改 topics 字段的值
+            topicField.set(containerProperties, newTopics); // 修改 topics 字段的值
         } catch (Exception e) {
             log.error("change kafka consumer container topic error", e);
         }
@@ -92,7 +102,7 @@ public class KafkaConsumerBeanPostProcessor implements BeanPostProcessor {
             return;
         }
         KafkaMessageListenerContainer kafkaMessageListenerContainer = (KafkaMessageListenerContainer) bean;
-        kafkaMessageListenerContainer.setRecordInterceptor(MultiLanesConsumerInterceptor.instance());
+        kafkaMessageListenerContainer.setRecordInterceptor(consumerInterceptor);
     }
 
     private void addInterceptorToContainerFactory(Object bean) {
@@ -100,7 +110,7 @@ public class KafkaConsumerBeanPostProcessor implements BeanPostProcessor {
             return;
         }
         ConcurrentKafkaListenerContainerFactory containerFactory = (ConcurrentKafkaListenerContainerFactory) bean;
-        containerFactory.setRecordInterceptor(MultiLanesConsumerInterceptor.instance());
+        containerFactory.setRecordInterceptor(consumerInterceptor);
     }
 
     private void registerContainerTopicGroupPath(Object bean) {

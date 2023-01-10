@@ -7,6 +7,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 import org.springframework.kafka.listener.RecordInterceptor;
+import org.springframework.kafka.support.KafkaUtils;
 
 import java.util.Arrays;
 
@@ -15,6 +16,12 @@ import java.util.Arrays;
  */
 @Slf4j
 public class MultiLanesConsumerInterceptor implements RecordInterceptor {
+
+    private KafkaNodeWatcher nodeWatcher;
+
+    public MultiLanesConsumerInterceptor(KafkaNodeWatcher nodeWatcher) {
+        this.nodeWatcher = nodeWatcher;
+    }
 
     @Override
     public ConsumerRecord intercept(ConsumerRecord record) {
@@ -32,14 +39,35 @@ public class MultiLanesConsumerInterceptor implements RecordInterceptor {
         }
         //设置本次请求featureTag
         FeatureTagContext.set(featureTag);
+        if (shouldSkipRecord(record)) {
+            log.info("skip this record, topic {}, group {}, value {}", record.topic(), KafkaUtils.getConsumerGroupId(), record.value());
+            return null;
+        }
         return record;
     }
 
-    public static MultiLanesConsumerInterceptor instance() {
-        return InstanceHolder.INTERCEPTOR;
-    }
-
-    private static class InstanceHolder {
-        private static final MultiLanesConsumerInterceptor INTERCEPTOR = new MultiLanesConsumerInterceptor();
+    /**
+     * 1. 不存在流量标识，则消费消息。
+     * 2. 如果流量标识与当前泳道环境相同的话（feat 泳道收到 feat 流量，base 泳道收到 base 流量），则消费消息。
+     * 3. 如果流量标识与当前泳道环境不同的话（eg: base 泳道收到了 feat 流量），假设当前 Listener 处在 cs_a 消费者组，监听 topic_a，流量标识是 feat_x。
+     * 3.a. 存在 /topic_a_feat_x/cs_a 节点，不消费。
+     * 3.b. 不存在/topic_a_feat_x/cs_a 节点，消费。
+     */
+    private boolean shouldSkipRecord(ConsumerRecord record) {
+        Headers headers = record.headers();
+        Header featureTagObj = headers.lastHeader(FeatureTagContext.NAME);
+        if (featureTagObj == null) {
+            return false;
+        }
+        String featureTag = Arrays.toString(featureTagObj.value());
+        String currentEnv = FeatureTagContext.getDEFAULT();
+        if (featureTag.equals(currentEnv)) {
+            return false;
+        }
+        String topic = record.topic();
+        String consumerGroup = KafkaUtils.getConsumerGroupId();
+        String featureTopic = topic + "_" + featureTag;
+        String path = KafkaNodeWatcher.path(featureTopic, consumerGroup);
+        return nodeWatcher.isExist(path);
     }
 }
