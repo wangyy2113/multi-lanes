@@ -37,6 +37,7 @@ public class KafkaAspect {
         } else {
             producer.send(newRecord, (Callback) joinPoint.getArgs()[1]);
         }
+        log.info("kafka producer send message to new topic {}", newTopic);
     }
 
     @Before("execution(* org.springframework.kafka.core.KafkaTemplate.send(..))")
@@ -46,11 +47,42 @@ public class KafkaAspect {
             return;
         }
 
-        KafkaTemplate template = (KafkaTemplate) joinPoint.getTarget();
         Object[] args = joinPoint.getArgs();
+        String originTopic = null;
         if (args[0] instanceof String) {
-
+            originTopic = (String) args[0];
+        } else if (args[0] instanceof ProducerRecord) {
+            originTopic = ((ProducerRecord<?, ?>) args[0]).topic();
+        } else {
+            log.warn("unsupported kafka template send method");
+            return;
         }
-
+        String newTopic = FeatureTagUtils.buildWithFeatureTag(originTopic, FeatureTagContext.get());
+        KafkaTemplate template = (KafkaTemplate) joinPoint.getTarget();
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof ProducerRecord) {
+                    ProducerRecord<?, ?> originRecord = (ProducerRecord<?, ?>) args[0];
+                    ProducerRecord<?, ?> newRecord = new ProducerRecord(newTopic, originRecord.partition(),
+                            originRecord.timestamp(), originRecord.key(), originRecord.value(), originRecord.headers());
+                    template.send(newRecord);
+                }
+                break;
+            case 2:
+                template.send(newTopic, args[1]);
+                break;
+            case 3:
+                template.send(newTopic, args[1], args[2]);
+                break;
+            case 4:
+                template.send(newTopic, (Integer) args[1], args[2], args[3]);
+                break;
+            case 5:
+                template.send(newTopic, (Integer) args[1], (Long) args[2], args[4], args[5]);
+                break;
+            default:
+                log.warn("not send to new topic");
+        }
+        log.info("kafka template send message to new topic {}", newTopic);
     }
 }

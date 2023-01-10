@@ -4,6 +4,7 @@ import com.wangyy.multilanes.core.annotation.ConditionalOnConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
@@ -18,6 +19,11 @@ public class KafkaMultiLanesContextInit {
 
     @Autowired
     private ApplicationContext applicationContext;
+
+    @Bean
+    public KafkaAspect kafkaAspect() {
+        return new KafkaAspect();
+    }
 
     @PostConstruct
     public void init() {
