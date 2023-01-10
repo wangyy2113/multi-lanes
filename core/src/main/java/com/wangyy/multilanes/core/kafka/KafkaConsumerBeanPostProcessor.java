@@ -1,8 +1,11 @@
 package com.wangyy.multilanes.core.kafka;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
@@ -10,6 +13,7 @@ import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -24,12 +28,20 @@ import java.util.stream.Collectors;
 @Component
 public class KafkaConsumerBeanPostProcessor implements BeanPostProcessor {
 
+    @Autowired
+    private KafkaNodeWatcher nodeWatcher;
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         changeListenerAnnotationTopic(bean);
         changeContainerTopic(bean);
         addInterceptorToContainer(bean);
         addInterceptorToContainerFactory(bean);
+        registerContainerTopicGroupPath(bean);
+        registerAnnotationTopicGroupPath(bean);
         return bean;
     }
 
@@ -91,4 +103,41 @@ public class KafkaConsumerBeanPostProcessor implements BeanPostProcessor {
         containerFactory.setRecordInterceptor(MultiLanesConsumerInterceptor.instance());
     }
 
+    private void registerContainerTopicGroupPath(Object bean) {
+        if (!(bean instanceof KafkaMessageListenerContainer)) {
+            return;
+        }
+        KafkaMessageListenerContainer container = (KafkaMessageListenerContainer) bean;
+        String groupId = container.getGroupId();
+        String[] topics = container.getContainerProperties().getTopics();
+        for (String topic : topics) {
+            nodeWatcher.registerZKPath(KafkaNodeWatcher.path(topic, groupId));
+        }
+    }
+
+    private void registerAnnotationTopicGroupPath(Object bean) {
+        List<Method> methods = new ArrayList<>();
+        ReflectionUtils.doWithMethods(bean.getClass(), methods::add);
+        List<Method> kafkaListenerMethods = methods.stream().filter(method -> method.isAnnotationPresent(KafkaListener.class)).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(kafkaListenerMethods)) {
+            return;
+        }
+        log.info("start register annotation consumer zk");
+        for (Method method : kafkaListenerMethods) {
+            KafkaListener kafkaListener = method.getAnnotation(KafkaListener.class);
+            String[] topics = kafkaListener.topics();
+            String groupId = findKafkaListenerGroupId(kafkaListener);
+            for (String topic : topics) {
+                nodeWatcher.registerZKPath(KafkaNodeWatcher.path(topic, groupId));
+            }
+        }
+    }
+
+    private String findKafkaListenerGroupId(KafkaListener kafkaListener) {
+        if (!StringUtils.isEmpty(kafkaListener.groupId())) {
+            return kafkaListener.groupId();
+        }
+        ConcurrentKafkaListenerContainerFactory containerFactory = (ConcurrentKafkaListenerContainerFactory) applicationContext.getBean(kafkaListener.containerFactory());
+        return (String) containerFactory.getConsumerFactory().getConfigurationProperties().get(ConsumerConfig.GROUP_ID_CONFIG);
+    }
 }
