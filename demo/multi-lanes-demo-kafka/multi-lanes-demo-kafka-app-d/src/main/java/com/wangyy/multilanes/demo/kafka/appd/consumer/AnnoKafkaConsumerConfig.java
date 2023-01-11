@@ -1,4 +1,4 @@
-package com.wangyy.multilanes.demo.kafka.appb.annotation;
+package com.wangyy.multilanes.demo.kafka.appd.consumer;
 
 import com.google.common.collect.Maps;
 import com.wangyy.multilanes.demo.kafka.commons.KafkaConstants;
@@ -27,7 +27,7 @@ public class AnnoKafkaConsumerConfig {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, 15000);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "appb-anno");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "appd");
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new StringDeserializer());
     }
 

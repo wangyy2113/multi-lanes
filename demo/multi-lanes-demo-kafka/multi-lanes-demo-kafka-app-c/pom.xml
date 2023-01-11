@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>multi-lanes-demo-kafka-app-a</artifactId>
+    <artifactId>multi-lanes-demo-kafka-app-c</artifactId>
 
     <dependencies>
         <dependency>

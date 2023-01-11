@@ -1,16 +1,10 @@
-package com.wangyy.multilanes.demo.kafka.appb.annotation;
+package com.wangyy.multilanes.demo.kafka.appd.consumer;
 
 import com.wangyy.multilanes.demo.kafka.commons.KafkaConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.listener.KafkaMessageListenerContainer;
-import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 /**
  * Created by houyantao on 2023/1/5
@@ -19,10 +13,8 @@ import java.util.Map;
 @Slf4j
 public class AnnoKafkaConsumer {
 
-    @Autowired
-    private ApplicationContext applicationContext;
 
-    @KafkaListener(topics = KafkaConstants.TOPIC, containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = KafkaConstants.TOPIC_B, containerFactory = "kafkaListenerContainerFactory")
     public void onMessage(ConsumerRecord<String, String> consumerRecord) {
         String topic = consumerRecord.topic();
         String value = consumerRecord.value();

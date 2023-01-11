@@ -1,4 +1,4 @@
-package com.wangyy.multilanes.demo.kafka.appb.container;
+package com.wangyy.multilanes.demo.kafka.appb.consumer;
 
 import com.wangyy.multilanes.demo.kafka.commons.KafkaConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.CompositeRecordInterceptor;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 
@@ -28,7 +27,7 @@ public class ContainerKafkaConsumerConfig {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, 15000);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "appb-container");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "appb");
         return new DefaultKafkaConsumerFactory<>(props,
                 new StringDeserializer(), new StringDeserializer());
     }
@@ -36,7 +35,7 @@ public class ContainerKafkaConsumerConfig {
     @Bean
     public KafkaMessageListenerContainer<String, String> listenerContainer(ConsumerFactory<String, String> consumerFactory,
                                                                                        ContainerKafkaConsumer kafkaConsumer) {
-        ContainerProperties containerProperties = new ContainerProperties(KafkaConstants.TOPIC);
+        ContainerProperties containerProperties = new ContainerProperties(KafkaConstants.TOPIC_A);
         containerProperties.setMessageListener(kafkaConsumer);
         KafkaMessageListenerContainer<String, String> container = new KafkaMessageListenerContainer<>(consumerFactory, containerProperties);
         container.setErrorHandler((e, c) -> {

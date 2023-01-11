@@ -13,9 +13,11 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>multi-lanes-demo-kafka-commons</module>
         <module>multi-lanes-demo-kafka-app-a</module>
         <module>multi-lanes-demo-kafka-app-b</module>
-        <module>multi-lanes-demo-kafka-comons</module>
+        <module>multi-lanes-demo-kafka-app-c</module>
+        <module>multi-lanes-demo-kafka-app-d</module>
     </modules>
 
     <dependencies>

@@ -9,6 +9,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>multi-lanes-demo-kafka-comons</artifactId>
+    <artifactId>multi-lanes-demo-kafka-app-d</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.wangyy</groupId>
+            <artifactId>multi-lanes-demo-kafka-commons</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 </project>

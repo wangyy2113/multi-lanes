@@ -24,14 +24,13 @@ public class TestController {
 
     @GetMapping("/kafka")
     public Object sendTemplate(@RequestParam String message) {
-        kafkaTemplate.send(KafkaConstants.TOPIC, message);
+        kafkaTemplate.send(KafkaConstants.TOPIC_A, message);
         return "suc " + System.currentTimeMillis();
     }
 
     @GetMapping("/kafka/producer")
-    public Object sendProducer(@RequestParam String topic,
-                               @RequestParam String message) {
-        ProducerRecord<String, String> record = new ProducerRecord<String, String>(topic, message);
+    public Object sendProducer(@RequestParam String message) {
+        ProducerRecord<String, String> record = new ProducerRecord<String, String>(KafkaConstants.TOPIC_A, message);
         userKafkaProducer.send(record);
         return "suc " + System.currentTimeMillis();
     }
