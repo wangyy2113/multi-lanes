@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * todo 和 rabbitNodeWatch 整合
- * Created by houyantao on 2023/1/6
  */
 public class KafkaNodeWatcher {
 

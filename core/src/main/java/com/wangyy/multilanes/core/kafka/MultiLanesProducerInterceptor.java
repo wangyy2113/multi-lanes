@@ -10,14 +10,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * Created by houyantao on 2023/1/4
+  在生产端给消息增加消息头
  */
 @Slf4j
 public class MultiLanesProducerInterceptor<K,V> implements ProducerInterceptor {
 
     @Override
     public ProducerRecord onSend(ProducerRecord record) {
-        log.info("MultiLane producer interceptor");
         record.headers().add(FeatureTagContext.NAME, FeatureTagContext.get().getBytes(StandardCharsets.UTF_8));
         return record;
     }

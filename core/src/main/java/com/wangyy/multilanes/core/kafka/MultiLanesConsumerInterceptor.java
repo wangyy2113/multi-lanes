@@ -23,7 +23,10 @@ public class MultiLanesConsumerInterceptor implements RecordInterceptor {
 
     @Override
     public ConsumerRecord intercept(ConsumerRecord record) {
-        log.info("interceptor consumer record {} from {}", record.value(), record.topic());
+        if (shouldSkipRecord(record)) {
+            log.info("skip this record, topic {}, group {}, value {}", record.topic(), KafkaUtils.getConsumerGroupId(), record.value());
+            return null;
+        }
         Headers headers = record.headers();
         Header featureTagObj = headers.lastHeader(FeatureTagContext.NAME);
 
@@ -37,10 +40,6 @@ public class MultiLanesConsumerInterceptor implements RecordInterceptor {
         }
         //设置本次请求featureTag
         FeatureTagContext.set(featureTag);
-        if (shouldSkipRecord(record)) {
-            log.info("skip this record, topic {}, group {}, value {}", record.topic(), KafkaUtils.getConsumerGroupId(), record.value());
-            return null;
-        }
         return record;
     }
 

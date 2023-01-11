@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by houyantao on 2023/1/6
+ 给生产端增加切面
  */
 @Slf4j
 public class KafkaProducerBeanPostProcessor implements BeanPostProcessor {
@@ -38,7 +38,7 @@ public class KafkaProducerBeanPostProcessor implements BeanPostProcessor {
             Map<String, Object> props = (Map<String, Object>) field.get(factory);
             props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, MultiLanesProducerInterceptor.class.getName());
         } catch (Exception e) {
-            log.info("add interceptor to kafka producer factory fail", e);
+            log.error("add interceptor to kafka producer factory fail", e);
         }
     }
 
@@ -57,7 +57,7 @@ public class KafkaProducerBeanPostProcessor implements BeanPostProcessor {
             List<ProducerInterceptor> interceptors = (List<ProducerInterceptor>) proInterceptorsField.get(producerInterceptors);
             interceptors.add(MultiLanesProducerInterceptor.instance());
         } catch (Exception e) {
-            log.info("add interceptor to kafka producer fail", e);
+            log.error("add interceptor to kafka producer fail", e);
         }
     }
 }

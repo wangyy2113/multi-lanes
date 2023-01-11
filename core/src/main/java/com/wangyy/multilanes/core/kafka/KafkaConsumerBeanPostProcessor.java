@@ -21,16 +21,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 更改消费者监听的 topic，增加 Interceptor
+ * 1. 更改监听的 topic
+ * 2. 向 zk 注册路径
+ * 3. 为消费端增加切面
  */
 @Slf4j
 public class KafkaConsumerBeanPostProcessor implements BeanPostProcessor {
 
-    private KafkaNodeWatcher nodeWatcher;
+    private final KafkaNodeWatcher nodeWatcher;
 
-    private ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
-    private MultiLanesConsumerInterceptor consumerInterceptor;
+    private final MultiLanesConsumerInterceptor consumerInterceptor;
 
     public KafkaConsumerBeanPostProcessor(KafkaNodeWatcher nodeWatcher, ApplicationContext applicationContext, MultiLanesConsumerInterceptor consumerInterceptor) {
         this.nodeWatcher = nodeWatcher;
@@ -40,21 +42,23 @@ public class KafkaConsumerBeanPostProcessor implements BeanPostProcessor {
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        //change topic
         if (!FeatureTagContext.isBaseLine()) {
             changeListenerAnnotationTopic(bean);
             changeContainerTopic(bean);
         }
+        // add consumer interceptor
         addInterceptorToContainer(bean);
         addInterceptorToContainerFactory(bean);
+
+        //register path to zk
         registerContainerTopicGroupPath(bean);
         registerAnnotationTopicGroupPath(bean);
         return bean;
     }
 
     private void changeListenerAnnotationTopic(Object bean) {
-        List<Method> methods = new ArrayList<>();
-        ReflectionUtils.doWithMethods(bean.getClass(), methods::add);
-        List<Method> kafkaListenerMethods = methods.stream().filter(method -> method.isAnnotationPresent(KafkaListener.class)).collect(Collectors.toList());
+        List<Method> kafkaListenerMethods = findKafkaListenerMethods(bean);
         if (CollectionUtils.isEmpty(kafkaListenerMethods)) {
             return;
         }
@@ -122,9 +126,7 @@ public class KafkaConsumerBeanPostProcessor implements BeanPostProcessor {
     }
 
     private void registerAnnotationTopicGroupPath(Object bean) {
-        List<Method> methods = new ArrayList<>();
-        ReflectionUtils.doWithMethods(bean.getClass(), methods::add);
-        List<Method> kafkaListenerMethods = methods.stream().filter(method -> method.isAnnotationPresent(KafkaListener.class)).collect(Collectors.toList());
+        List<Method> kafkaListenerMethods = findKafkaListenerMethods(bean);
         if (CollectionUtils.isEmpty(kafkaListenerMethods)) {
             return;
         }
@@ -137,6 +139,12 @@ public class KafkaConsumerBeanPostProcessor implements BeanPostProcessor {
                 nodeWatcher.registerZKPath(KafkaNodeWatcher.path(topic, groupId));
             }
         }
+    }
+
+    private List<Method> findKafkaListenerMethods(Object bean) {
+        List<Method> methods = new ArrayList<>();
+        ReflectionUtils.doWithMethods(bean.getClass(), methods::add);
+        return methods.stream().filter(method -> method.isAnnotationPresent(KafkaListener.class)).collect(Collectors.toList());
     }
 
     private String findKafkaListenerGroupId(KafkaListener kafkaListener) {

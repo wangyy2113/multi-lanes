@@ -1,6 +1,5 @@
 package com.wangyy.multilanes.core.kafka;
 
-import com.wangyy.multilanes.core.trace.FTConstants;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import com.wangyy.multilanes.core.utils.FeatureTagUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +20,6 @@ public class KafkaAspect {
 
     @Before("execution(* org.apache.kafka.clients.producer.Producer.send(..))")
     public void beforeKafkaProducerSend(JoinPoint joinPoint) {
-        log.info("start kafka producer intercept");
         if (FeatureTagContext.isBaseLine()) {
             return;
         }
@@ -42,8 +40,7 @@ public class KafkaAspect {
 
     @Before("execution(* org.springframework.kafka.core.KafkaTemplate.send(..))")
     public void beforeKafkaTemplateSend(JoinPoint joinPoint) {
-        log.info("start kafka template intercept");
-        if (FTConstants.FEATURE_TAG_BASE_LANE_VALUE.equals(FeatureTagContext.get())) {
+        if (FeatureTagContext.isBaseLine()) {
             return;
         }
 
