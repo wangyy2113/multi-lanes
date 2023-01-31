@@ -1,33 +1,53 @@
-package com.wangyy.multilanes.core.kafka;
+package com.wangyy.multilanes.core.kafka.consumer;
 
+import com.wangyy.multilanes.core.kafka.KafkaNodeWatcher;
 import com.wangyy.multilanes.core.trace.FTConstants;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
-import org.springframework.kafka.listener.RecordInterceptor;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
 import org.springframework.kafka.support.KafkaUtils;
 
 /**
- * Created by houyantao on 2023/1/4
+  标记 tag
  */
+@Aspect
 @Slf4j
-@Deprecated
-public class MultiLanesConsumerInterceptor implements RecordInterceptor {
+public class KafkaConsumerAspect {
 
     private KafkaNodeWatcher nodeWatcher;
 
-    public MultiLanesConsumerInterceptor(KafkaNodeWatcher nodeWatcher) {
+    public KafkaConsumerAspect(KafkaNodeWatcher nodeWatcher) {
         this.nodeWatcher = nodeWatcher;
     }
 
-    @Override
-    public ConsumerRecord intercept(ConsumerRecord record) {
+    @Around("execution(* org.springframework.kafka.listener.MessageListener.onMessage(..))")
+    public Object intercept(ProceedingJoinPoint joinPoint) throws Throwable {
+        Object[] args = joinPoint.getArgs();
+        ConsumerRecord<?, ?> record = (ConsumerRecord<?, ?>) args[0];
         if (shouldSkipRecord(record)) {
-            log.info("skip this record, topic {}, group {}, value {}", record.topic(), KafkaUtils.getConsumerGroupId(), record.value());
             return null;
         }
+        setFeatureTag(record);
+        return joinPoint.proceed();
+    }
+
+    @Around("@annotation(org.springframework.kafka.annotation.KafkaListener)")
+    public Object interceptAnno(ProceedingJoinPoint joinPoint) throws Throwable {
+        Object[] args = joinPoint.getArgs();
+        ConsumerRecord<?, ?> record = (ConsumerRecord<?, ?>) args[0];
+        if (shouldSkipRecord(record)) {
+            return null;
+        }
+        setFeatureTag(record);
+        return joinPoint.proceed();
+    }
+
+    private void setFeatureTag(ConsumerRecord record) {
         Headers headers = record.headers();
         Header featureTagObj = headers.lastHeader(FeatureTagContext.NAME);
 
@@ -41,7 +61,6 @@ public class MultiLanesConsumerInterceptor implements RecordInterceptor {
         }
         //设置本次请求featureTag
         FeatureTagContext.set(featureTag);
-        return record;
     }
 
     /**

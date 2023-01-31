@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
  * 3. 为消费端增加切面
  */
 @Slf4j
+@Deprecated
 public class KafkaConsumerBeanPostProcessor implements BeanPostProcessor {
 
     private final KafkaNodeWatcher nodeWatcher;

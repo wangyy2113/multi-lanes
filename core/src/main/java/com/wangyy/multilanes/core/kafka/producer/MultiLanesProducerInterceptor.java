@@ -1,4 +1,4 @@
-package com.wangyy.multilanes.core.kafka;
+package com.wangyy.multilanes.core.kafka.producer;
 
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.wangyy.multilanes.core.kafka;
+package com.wangyy.multilanes.core.kafka.producer;
 
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import com.wangyy.multilanes.core.utils.FeatureTagUtils;
@@ -16,7 +16,7 @@ import org.springframework.kafka.core.KafkaTemplate;
  */
 @Aspect
 @Slf4j
-public class KafkaAspect {
+public class KafkaProducerAspect {
 
     @Before("execution(* org.apache.kafka.clients.producer.Producer.send(..))")
     public void beforeKafkaProducerSend(JoinPoint joinPoint) {
@@ -75,7 +75,7 @@ public class KafkaAspect {
                 template.send(newTopic, (Integer) args[1], args[2], args[3]);
                 break;
             case 5:
-                template.send(newTopic, (Integer) args[1], (Long) args[2], args[4], args[5]);
+                template.send(newTopic, (Integer) args[1], (Long) args[2], args[3], args[4]);
                 break;
             default:
                 log.warn("not send to new topic");
