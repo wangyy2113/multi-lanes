@@ -29,8 +29,10 @@ public class KafkaConsumerTopicChangeProcessor {
     }
 
     public void lance() {
-        changeListenerAnnotationTopic();
-        changeContainerTopic();
+        if (!FeatureTagContext.isBaseLine()) {
+            changeListenerAnnotationTopic();
+            changeContainerTopic();
+        }
     }
 
     private void changeListenerAnnotationTopic() {
