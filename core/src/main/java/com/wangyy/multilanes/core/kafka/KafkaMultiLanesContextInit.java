@@ -2,8 +2,10 @@ package com.wangyy.multilanes.core.kafka;
 
 import com.wangyy.multilanes.core.annotation.ConditionalOnConfig;
 import com.wangyy.multilanes.core.kafka.consumer.KafkaConsumerAspect;
+import com.wangyy.multilanes.core.kafka.consumer.KafkaConsumerTopicChangeProcessor;
 import com.wangyy.multilanes.core.kafka.consumer.KafkaConsumerTopicRegisterProcessor;
 import com.wangyy.multilanes.core.kafka.producer.KafkaProducerAspect;
+import com.wangyy.multilanes.core.kafka.producer.KafkaProducerFeatureTagProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,8 @@ public class KafkaMultiLanesContextInit {
 
     @PostConstruct
     public void init() {
+        new KafkaProducerFeatureTagProcessor(applicationContext).lance();
+        new KafkaConsumerTopicChangeProcessor(applicationContext).lance();
         KafkaNodeWatcher kafkaNodeWatcher = applicationContext.getBean(KafkaNodeWatcher.class);
         new KafkaConsumerTopicRegisterProcessor(applicationContext, kafkaNodeWatcher).registerToZookeeper();
     }

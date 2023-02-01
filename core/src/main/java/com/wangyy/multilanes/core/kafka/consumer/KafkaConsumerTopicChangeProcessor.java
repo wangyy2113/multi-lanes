@@ -2,7 +2,7 @@ package com.wangyy.multilanes.core.kafka.consumer;
 
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
@@ -22,10 +22,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class KafkaConsumerTopicChangeProcessor {
 
-    private ConfigurableListableBeanFactory beanFactory;
+    private ApplicationContext applicationContext;
 
-    public KafkaConsumerTopicChangeProcessor(ConfigurableListableBeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+    public KafkaConsumerTopicChangeProcessor(ApplicationContext beanFactory) {
+        this.applicationContext = beanFactory;
     }
 
     public void lance() {
@@ -52,7 +52,7 @@ public class KafkaConsumerTopicChangeProcessor {
     }
 
     private void changeContainerTopic() {
-        Map<String, KafkaMessageListenerContainer> containerMap = beanFactory.getBeansOfType(KafkaMessageListenerContainer.class);
+        Map<String, KafkaMessageListenerContainer> containerMap = applicationContext.getBeansOfType(KafkaMessageListenerContainer.class);
         containerMap.values().forEach(container -> {
             try {
                 Field field = KafkaMessageListenerContainer.class.getSuperclass().getDeclaredField("containerProperties");
@@ -74,9 +74,9 @@ public class KafkaConsumerTopicChangeProcessor {
 
     private List<Method> findKafkaListenerMethods() {
         List<Method> methods = new ArrayList<>();
-        String[] beanNames = beanFactory.getBeanNamesForAnnotation(KafkaListener.class);
+        String[] beanNames = applicationContext.getBeanNamesForAnnotation(KafkaListener.class);
         for (String beanName : beanNames) {
-            Object bean = beanFactory.getBean(beanName);
+            Object bean = applicationContext.getBean(beanName);
             Class<?> beanClass = bean.getClass();
             ReflectionUtils.doWithMethods(beanClass, methods::add);
         }

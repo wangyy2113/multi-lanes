@@ -5,7 +5,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerInterceptor;
 import org.apache.kafka.clients.producer.internals.ProducerInterceptors;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 
 import java.lang.reflect.Field;
@@ -18,10 +18,10 @@ import java.util.Map;
 @Slf4j
 public class KafkaProducerFeatureTagProcessor {
 
-    private ConfigurableListableBeanFactory beanFactory;
+    private ApplicationContext applicationContext;
 
-    public KafkaProducerFeatureTagProcessor(ConfigurableListableBeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+    public KafkaProducerFeatureTagProcessor(ApplicationContext beanFactory) {
+        this.applicationContext = beanFactory;
     }
 
     public void lance() {
@@ -30,7 +30,7 @@ public class KafkaProducerFeatureTagProcessor {
     }
 
     private void addInterceptorToKafkaProducerFactory() {
-        Map<String, DefaultKafkaProducerFactory> producerFactoryMap = beanFactory.getBeansOfType(DefaultKafkaProducerFactory.class);
+        Map<String, DefaultKafkaProducerFactory> producerFactoryMap = applicationContext.getBeansOfType(DefaultKafkaProducerFactory.class);
         producerFactoryMap.values().forEach(factory -> {
             try {
                 Field field = DefaultKafkaProducerFactory.class.getDeclaredField("configs");
@@ -47,7 +47,7 @@ public class KafkaProducerFeatureTagProcessor {
     }
 
     private void addInterceptorToKafkaProducer() {
-        Map<String, KafkaProducer> producerMap = beanFactory.getBeansOfType(KafkaProducer.class);
+        Map<String, KafkaProducer> producerMap = applicationContext.getBeansOfType(KafkaProducer.class);
         producerMap.values().forEach(producer -> {
             try {
                 Field interceptorsField = KafkaProducer.class.getDeclaredField("interceptors");
