@@ -1,5 +1,6 @@
 package com.wangyy.multilanes.core.kafka.producer;
 
+import com.wangyy.multilanes.core.utils.ReflectionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -9,6 +10,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,8 +22,8 @@ public class KafkaProducerFeatureTagProcessor {
 
     private ApplicationContext applicationContext;
 
-    public KafkaProducerFeatureTagProcessor(ApplicationContext beanFactory) {
-        this.applicationContext = beanFactory;
+    public KafkaProducerFeatureTagProcessor(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     public void lance() {
@@ -54,10 +56,18 @@ public class KafkaProducerFeatureTagProcessor {
                 interceptorsField.setAccessible(true);
                 ProducerInterceptors producerInterceptors = (ProducerInterceptors) interceptorsField.get(producer);
 
-                Field proInterceptorsField = ProducerInterceptors.class.getDeclaredField("interceptors");
-                proInterceptorsField.setAccessible(true);
-                List<ProducerInterceptor> interceptors = (List<ProducerInterceptor>) proInterceptorsField.get(producerInterceptors);
-                interceptors.add(MultiLanesProducerInterceptor.instance());
+                if (producerInterceptors == null) {
+                    List<ProducerInterceptor> interceptors = new ArrayList<>();
+                    interceptors.add(MultiLanesProducerInterceptor.instance());
+                    ProducerInterceptors newProducerInterceptors = new ProducerInterceptors(interceptors);
+                    ReflectionUtils.setField(interceptorsField, newProducerInterceptors, producer);
+                    log.info("ssf");
+                } else {
+                    Field proInterceptorsField = ProducerInterceptors.class.getDeclaredField("interceptors");
+                    proInterceptorsField.setAccessible(true);
+                    List<ProducerInterceptor> interceptors = (List<ProducerInterceptor>) proInterceptorsField.get(producerInterceptors);
+                    interceptors.add(MultiLanesProducerInterceptor.instance());
+                }
             } catch (Exception e) {
                 log.error("add interceptor to kafka producer fail", e);
             }

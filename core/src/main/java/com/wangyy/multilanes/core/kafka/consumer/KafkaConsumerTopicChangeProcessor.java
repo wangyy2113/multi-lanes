@@ -3,18 +3,11 @@ package com.wangyy.multilanes.core.kafka.consumer;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by houyantao on 2023/1/31
@@ -30,26 +23,7 @@ public class KafkaConsumerTopicChangeProcessor {
 
     public void lance() {
         if (!FeatureTagContext.isBaseLine()) {
-            changeListenerAnnotationTopic();
             changeContainerTopic();
-        }
-    }
-
-    private void changeListenerAnnotationTopic() {
-        List<Method> kafkaListenerMethods = findKafkaListenerMethods();
-        if (CollectionUtils.isEmpty(kafkaListenerMethods)) {
-            return;
-        }
-        log.info("start change annotation consumer topic");
-        for (Method method : kafkaListenerMethods) {
-            KafkaListener kafkaListener = method.getAnnotation(KafkaListener.class);
-            String[] originTopic = kafkaListener.topics();
-            String[] newTopics = new String[originTopic.length];
-            for (int i = 0; i < originTopic.length; i++) {
-                newTopics[i] = originTopic[i] + "_" + FeatureTagContext.getDEFAULT();
-            }
-            com.wangyy.multilanes.core.utils.ReflectionUtils.changeAnnotationValue(kafkaListener, "topics", newTopics);
-            log.info("after change, kafka listener topics is {}", kafkaListener.topics());
         }
     }
 
@@ -74,14 +48,4 @@ public class KafkaConsumerTopicChangeProcessor {
         });
     }
 
-    private List<Method> findKafkaListenerMethods() {
-        List<Method> methods = new ArrayList<>();
-        String[] beanNames = applicationContext.getBeanNamesForAnnotation(KafkaListener.class);
-        for (String beanName : beanNames) {
-            Object bean = applicationContext.getBean(beanName);
-            Class<?> beanClass = bean.getClass();
-            ReflectionUtils.doWithMethods(beanClass, methods::add);
-        }
-        return methods.stream().filter(method -> method.isAnnotationPresent(KafkaListener.class)).collect(Collectors.toList());
-    }
 }

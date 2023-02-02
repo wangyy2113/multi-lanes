@@ -3,6 +3,7 @@ package com.wangyy.multilanes.core.kafka.consumer;
 import com.wangyy.multilanes.core.kafka.KafkaNodeWatcher;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -49,7 +50,7 @@ public class KafkaConsumerTopicRegisterProcessor {
     }
 
     private void registerAnnotationTopicGroupPath() {
-        List<Method> kafkaListenerMethods = findKafkaListenerMethods();
+        List<Method> kafkaListenerMethods = findKafkaListenerMethods(applicationContext);
         if (CollectionUtils.isEmpty(kafkaListenerMethods)) {
             return;
         }
@@ -64,13 +65,15 @@ public class KafkaConsumerTopicRegisterProcessor {
         }
     }
 
-    private List<Method> findKafkaListenerMethods() {
+    private List<Method> findKafkaListenerMethods(ApplicationContext applicationContext) {
         List<Method> methods = new ArrayList<>();
-        String[] beanNames = applicationContext.getBeanNamesForAnnotation(KafkaListener.class);
-        for (String beanName : beanNames) {
+        for (String beanName : applicationContext.getBeanDefinitionNames()) {
             Object bean = applicationContext.getBean(beanName);
-            Class<?> beanClass = bean.getClass();
-            ReflectionUtils.doWithMethods(beanClass, methods::add);
+            Class<?> clazz = bean.getClass();
+            if (AopUtils.isAopProxy(clazz)) {
+                clazz = AopUtils.getTargetClass(bean);
+            }
+            ReflectionUtils.doWithMethods(clazz, methods::add);
         }
         return methods.stream().filter(method -> method.isAnnotationPresent(KafkaListener.class)).collect(Collectors.toList());
     }

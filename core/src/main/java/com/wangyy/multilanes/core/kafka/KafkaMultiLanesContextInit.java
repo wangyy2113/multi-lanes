@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.PriorityOrdered;
 
 import javax.annotation.PostConstruct;
 
@@ -21,7 +22,7 @@ import javax.annotation.PostConstruct;
 @ConditionalOnConfig("multi-lanes.enable")
 @Configuration
 @Slf4j
-public class KafkaMultiLanesContextInit {
+public class KafkaMultiLanesContextInit implements PriorityOrdered {
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -39,6 +40,11 @@ public class KafkaMultiLanesContextInit {
     @Bean
     public KafkaConsumerAspect kafkaConsumerAspect(KafkaNodeWatcher kafkaNodeWatcher) {
         return new KafkaConsumerAspect(kafkaNodeWatcher);
+    }
+
+    @Override
+    public int getOrder() {
+        return PriorityOrdered.HIGHEST_PRECEDENCE;
     }
 
     @PostConstruct

@@ -4,6 +4,7 @@ import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import com.wangyy.multilanes.core.utils.FeatureTagUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.Callback;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.aspectj.lang.JoinPoint;
@@ -18,14 +19,14 @@ import org.springframework.kafka.core.KafkaTemplate;
 @Slf4j
 public class KafkaProducerAspect {
 
-    @Before("execution(* org.apache.kafka.clients.producer.Producer.send(..))")
+    @Before("execution(* org.apache.kafka.clients.producer.KafkaProducer.send(..))")
     public void beforeKafkaProducerSend(JoinPoint joinPoint) {
         if (FeatureTagContext.isBaseLine()) {
             return;
         }
         ProducerRecord producerRecord = (ProducerRecord) joinPoint.getArgs()[0];
         //generate new record
-        Producer producer = (Producer) joinPoint.getTarget();
+        KafkaProducer producer = (KafkaProducer) joinPoint.getTarget();
         String newTopic = FeatureTagUtils.buildWithFeatureTag(producerRecord.topic(), FeatureTagContext.get());
         ProducerRecord newRecord = new ProducerRecord(newTopic, producerRecord.partition(),
                 producerRecord.timestamp(), producerRecord.key(), producerRecord.value(), producerRecord.headers());
