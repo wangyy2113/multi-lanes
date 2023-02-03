@@ -12,6 +12,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * 给 feature 的 topic 发消息
  */
@@ -25,6 +27,7 @@ public class KafkaProducerAspect {
             return;
         }
         ProducerRecord producerRecord = (ProducerRecord) joinPoint.getArgs()[0];
+        addHeadersToRecord(producerRecord);
         //generate new record
         KafkaProducer producer = (KafkaProducer) joinPoint.getTarget();
         String newTopic = FeatureTagUtils.buildWithFeatureTag(producerRecord.topic(), FeatureTagContext.get());
@@ -37,6 +40,10 @@ public class KafkaProducerAspect {
             producer.send(newRecord, (Callback) joinPoint.getArgs()[1]);
         }
         log.info("kafka producer send message to new topic {}", newTopic);
+    }
+
+    private void addHeadersToRecord(ProducerRecord record) {
+        record.headers().add(FeatureTagContext.NAME, FeatureTagContext.get().getBytes(StandardCharsets.UTF_8));
     }
 
     @Before("execution(* org.springframework.kafka.core.KafkaTemplate.send(..))")
