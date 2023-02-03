@@ -44,7 +44,9 @@ public class KafkaConsumerTopicRegisterProcessor {
             String groupId = container.getGroupId();
             String[] topics = container.getContainerProperties().getTopics();
             for (String topic : topics) {
-                nodeWatcher.registerZKPath(KafkaNodeWatcher.path(topic, groupId));
+                String path = KafkaNodeWatcher.path(topic, groupId);
+                nodeWatcher.registerZKPath(path);
+                log.info("register kafka path to zookeeper {}", path);
             }
         }
     }
@@ -60,7 +62,9 @@ public class KafkaConsumerTopicRegisterProcessor {
             String[] topics = kafkaListener.topics();
             String groupId = findKafkaListenerGroupId(kafkaListener);
             for (String topic : topics) {
-                nodeWatcher.registerZKPath(KafkaNodeWatcher.path(topic, groupId));
+                String path = KafkaNodeWatcher.path(topic, groupId);
+                nodeWatcher.registerZKPath(path);
+                log.info("register kafka path to zookeeper {}", path);
             }
         }
     }

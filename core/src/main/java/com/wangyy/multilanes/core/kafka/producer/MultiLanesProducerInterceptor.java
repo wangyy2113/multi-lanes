@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
-  在生产端给消息增加消息头
+  在生产端给消息增加消息头。目前只作用于 KafkaTemplate 方式
  */
 @Slf4j
 public class MultiLanesProducerInterceptor<K,V> implements ProducerInterceptor {
@@ -18,6 +18,7 @@ public class MultiLanesProducerInterceptor<K,V> implements ProducerInterceptor {
     @Override
     public ProducerRecord onSend(ProducerRecord record) {
         record.headers().add(FeatureTagContext.NAME, FeatureTagContext.get().getBytes(StandardCharsets.UTF_8));
+        log.debug("add feature tag {} to record", FeatureTagContext.get());
         return record;
     }
 

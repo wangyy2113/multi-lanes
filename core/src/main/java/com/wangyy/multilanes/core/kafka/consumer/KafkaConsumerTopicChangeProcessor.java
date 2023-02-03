@@ -31,6 +31,7 @@ public class KafkaConsumerTopicChangeProcessor {
         Map<String, KafkaMessageListenerContainer> containerMap = applicationContext.getBeansOfType(KafkaMessageListenerContainer.class);
         containerMap.values().forEach(container -> {
             try {
+                log.info("start change container consumer topic");
                 Field field = KafkaMessageListenerContainer.class.getSuperclass().getDeclaredField("containerProperties");
                 field.setAccessible(true);
                 ContainerProperties containerProperties = (ContainerProperties) field.get(container);  // 获取 consumerProperties 对象
@@ -42,10 +43,10 @@ public class KafkaConsumerTopicChangeProcessor {
                     newTopics[i] = originTopic[i] + "_" + FeatureTagContext.getDEFAULT();
                 }
                 topicField.set(containerProperties, newTopics); // 修改 topics 字段的值
+                log.info("after change, kafka listener topics is {}", newTopics);
             } catch (Exception e) {
                 log.error("change kafka consumer container topic error", e);
             }
         });
     }
-
 }

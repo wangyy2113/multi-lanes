@@ -5,7 +5,6 @@ import com.wangyy.multilanes.core.utils.FeatureTagUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -21,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class KafkaProducerAspect {
 
+    //针对 kafkaProducer 这种形式，直接在拦截的时候给消息头设置了 featureTag，未在切面里做。
     @Before("execution(* org.apache.kafka.clients.producer.KafkaProducer.send(..))")
     public void beforeKafkaProducerSend(JoinPoint joinPoint) {
         if (FeatureTagContext.isBaseLine()) {
@@ -39,7 +39,7 @@ public class KafkaProducerAspect {
         } else {
             producer.send(newRecord, (Callback) joinPoint.getArgs()[1]);
         }
-        log.info("kafka producer send message to new topic {}", newTopic);
+        log.debug("kafka producer send message to new topic {}", newTopic);
     }
 
     private void addHeadersToRecord(ProducerRecord record) {
@@ -59,7 +59,7 @@ public class KafkaProducerAspect {
         } else if (args[0] instanceof ProducerRecord) {
             originTopic = ((ProducerRecord<?, ?>) args[0]).topic();
         } else {
-            log.warn("unsupported kafka template send method");
+            log.warn("unsupported kafka template send method {}", joinPoint.getSignature().toString());
             return;
         }
         String newTopic = FeatureTagUtils.buildWithFeatureTag(originTopic, FeatureTagContext.get());
@@ -86,8 +86,8 @@ public class KafkaProducerAspect {
                 template.send(newTopic, (Integer) args[1], (Long) args[2], args[3], args[4]);
                 break;
             default:
-                log.warn("not send to new topic");
+                log.warn("send to new topic {} fail, unsupported method {}", newTopic, joinPoint.getSignature().toString());
         }
-        log.info("kafka template send message to new topic {}", newTopic);
+        log.debug("kafka template send message to new topic {}", newTopic);
     }
 }
