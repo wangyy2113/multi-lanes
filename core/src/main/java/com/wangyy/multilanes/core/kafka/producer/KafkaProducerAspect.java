@@ -1,15 +1,11 @@
 package com.wangyy.multilanes.core.kafka.producer;
 
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
-import com.wangyy.multilanes.core.utils.FeatureTagUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.Callback;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.springframework.kafka.core.KafkaTemplate;
 
 import java.nio.charset.StandardCharsets;
 
@@ -20,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class KafkaProducerAspect {
 
-    //针对 kafkaProducer 这种形式，直接在拦截的时候给消息头设置了 featureTag，未在切面里做。
+    //针对 kafkaProducer 这种形式，直接在拦截的时候给消息头设置了 featureTag
     @Before("execution(* org.apache.kafka.clients.producer.KafkaProducer.send(..))")
     public void beforeKafkaProducerSend(JoinPoint joinPoint) {
         if (FeatureTagContext.isBaseLine()) {
@@ -28,66 +24,9 @@ public class KafkaProducerAspect {
         }
         ProducerRecord producerRecord = (ProducerRecord) joinPoint.getArgs()[0];
         addHeadersToRecord(producerRecord);
-        //generate new record
-        KafkaProducer producer = (KafkaProducer) joinPoint.getTarget();
-        String newTopic = FeatureTagUtils.buildWithFeatureTag(producerRecord.topic(), FeatureTagContext.get());
-        ProducerRecord newRecord = new ProducerRecord(newTopic, producerRecord.partition(),
-                producerRecord.timestamp(), producerRecord.key(), producerRecord.value(), producerRecord.headers());
-        //send to new topic
-        if (joinPoint.getArgs().length == 1) {
-            producer.send(newRecord);
-        } else {
-            producer.send(newRecord, (Callback) joinPoint.getArgs()[1]);
-        }
-        log.debug("kafka producer send message to new topic {}", newTopic);
     }
 
     private void addHeadersToRecord(ProducerRecord record) {
         record.headers().add(FeatureTagContext.NAME, FeatureTagContext.get().getBytes(StandardCharsets.UTF_8));
-    }
-
-    @Before("execution(* org.springframework.kafka.core.KafkaTemplate.send(..))")
-    public void beforeKafkaTemplateSend(JoinPoint joinPoint) {
-        if (FeatureTagContext.isBaseLine()) {
-            return;
-        }
-
-        Object[] args = joinPoint.getArgs();
-        String originTopic = null;
-        if (args[0] instanceof String) {
-            originTopic = (String) args[0];
-        } else if (args[0] instanceof ProducerRecord) {
-            originTopic = ((ProducerRecord<?, ?>) args[0]).topic();
-        } else {
-            log.warn("unsupported kafka template send method {}", joinPoint.getSignature().toString());
-            return;
-        }
-        String newTopic = FeatureTagUtils.buildWithFeatureTag(originTopic, FeatureTagContext.get());
-        KafkaTemplate template = (KafkaTemplate) joinPoint.getTarget();
-        switch (args.length) {
-            case 1:
-                if (args[0] instanceof ProducerRecord) {
-                    ProducerRecord<?, ?> originRecord = (ProducerRecord<?, ?>) args[0];
-                    ProducerRecord<?, ?> newRecord = new ProducerRecord(newTopic, originRecord.partition(),
-                            originRecord.timestamp(), originRecord.key(), originRecord.value(), originRecord.headers());
-                    template.send(newRecord);
-                }
-                break;
-            case 2:
-                template.send(newTopic, args[1]);
-                break;
-            case 3:
-                template.send(newTopic, args[1], args[2]);
-                break;
-            case 4:
-                template.send(newTopic, (Integer) args[1], args[2], args[3]);
-                break;
-            case 5:
-                template.send(newTopic, (Integer) args[1], (Long) args[2], args[3], args[4]);
-                break;
-            default:
-                log.warn("send to new topic {} fail, unsupported method {}", newTopic, joinPoint.getSignature().toString());
-        }
-        log.debug("kafka template send message to new topic {}", newTopic);
     }
 }
