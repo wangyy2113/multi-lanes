@@ -16,12 +16,9 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class KafkaProducerAspect {
 
-    //针对 kafkaProducer 这种形式，直接在拦截的时候给消息头设置了 featureTag
+    //针对 kafkaProducer 这种形式
     @Before("execution(* org.apache.kafka.clients.producer.KafkaProducer.send(..))")
     public void beforeKafkaProducerSend(JoinPoint joinPoint) {
-        if (FeatureTagContext.isBaseLine()) {
-            return;
-        }
         ProducerRecord producerRecord = (ProducerRecord) joinPoint.getArgs()[0];
         addHeadersToRecord(producerRecord);
     }

@@ -1,6 +1,6 @@
 package com.wangyy.multilanes.core.kafka.consumer;
 
-import com.wangyy.multilanes.core.kafka.KafkaNodeWatcher;
+import com.wangyy.multilanes.core.control.zookeeper.MultiLanesNodeWatcher;
 import com.wangyy.multilanes.core.trace.FTConstants;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,6 @@ import org.apache.kafka.common.header.Headers;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.kafka.support.KafkaUtils;
 
 /**
  * 标记 tag
@@ -19,9 +18,9 @@ import org.springframework.kafka.support.KafkaUtils;
 @Slf4j
 public class KafkaConsumerAspect {
 
-    private KafkaNodeWatcher nodeWatcher;
+    private MultiLanesNodeWatcher nodeWatcher;
 
-    public KafkaConsumerAspect(KafkaNodeWatcher nodeWatcher) {
+    public KafkaConsumerAspect(MultiLanesNodeWatcher nodeWatcher) {
         this.nodeWatcher = nodeWatcher;
     }
 
@@ -52,11 +51,9 @@ public class KafkaConsumerAspect {
         Header featureTagObj = headers.lastHeader(FeatureTagContext.NAME);
 
         String featureTag;
-        if (featureTagObj == null || new String(featureTagObj.value()).equals(FTConstants.FEATURE_TAG_BASE_LANE_VALUE)) {
-            //base-line的消息，打上当前line的tag
+        if (featureTagObj == null) {
             featureTag = FeatureTagContext.getDEFAULT();
         } else {
-            //非base-line的消息，维持tag
             featureTag = new String(featureTagObj.value());
         }
         //设置本次请求featureTag
@@ -64,35 +61,32 @@ public class KafkaConsumerAspect {
     }
 
     /**
-     * 1. 不存在流量标识，则消费消息
-     * 2. 如果流量标识与当前泳道环境相同的话（feat_x 泳道收到 feat_x 流量，base 泳道收到 base 流量），则消费消息。
-     * 3. 如果流量标识与当前泳道环境不同的话，假设当前 Listener 处在 cs_a 消费者组，监听 topic。
-     *      a. feat_x 泳道收到消息(来自 feat_y 或者 base)，不消费
-     *      b. base 泳道收到 feat_x 消息
-     *          1. 如果存在 /topic/cs_a_feat_x，不消费
-     *          2. 如果不存在 /topic/cs_a_feat_x，消费
+     * 不存在流量标识的话，则认为是 base 的消息
+     * 1. 如果当前泳道是 feat 的话
+     * 1a. 如果流量也是 feat，则消费。其他情况不消费
+     * 2. 如果当前泳道是 base 的话
+     * 2a. 如果流量是 base，消费
+     * 2b. 如果不存在 /multilane/service/feat，消费。否则不消费
      *
      * @param record
      * @return
      */
     private boolean shouldConsumeRecord(ConsumerRecord record) {
         Headers headers = record.headers();
+        String currentLane = FeatureTagContext.getDEFAULT();
         Header featureTagObj = headers.lastHeader(FeatureTagContext.NAME);
+        String featureTag;
         if (featureTagObj == null) {
+            featureTag = FTConstants.FEATURE_TAG_BASE_LANE_VALUE;
+        } else {
+            featureTag = new String(featureTagObj.value());
+        }
+        if (!FeatureTagContext.isBaseLine()) {
+            return currentLane.equals(featureTag);
+        }
+        if (FTConstants.FEATURE_TAG_BASE_LANE_VALUE.equals(featureTag)) {
             return true;
         }
-        String featureTag = new String(featureTagObj.value());
-        String currentEnv = FeatureTagContext.getDEFAULT();
-        if (featureTag.equals(currentEnv)) {
-            return true;
-        }
-        if (!currentEnv.equals(FTConstants.FEATURE_TAG_BASE_LANE_VALUE)) {
-            return false;
-        }
-        String topic = record.topic();
-        String consumerGroup = KafkaUtils.getConsumerGroupId();
-        String featureTopic = topic + "_" + featureTag;
-        String path = KafkaNodeWatcher.path(featureTopic, consumerGroup);
-        return !nodeWatcher.isExist(path);
+        return !nodeWatcher.exist(featureTag);
     }
 }

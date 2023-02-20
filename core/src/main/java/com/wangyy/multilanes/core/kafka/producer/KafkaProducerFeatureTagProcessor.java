@@ -24,6 +24,7 @@ public class KafkaProducerFeatureTagProcessor {
         addInterceptorToKafkaProducerFactory();
     }
 
+    //针对 kafkaTemplate 这种形式
     private void addInterceptorToKafkaProducerFactory() {
         Map<String, DefaultKafkaProducerFactory> producerFactoryMap = applicationContext.getBeansOfType(DefaultKafkaProducerFactory.class);
         producerFactoryMap.values().forEach(factory -> {
