@@ -1,6 +1,6 @@
 package com.wangyy.multilanes.core.rabbitmq.solver;
 
-import com.wangyy.multilanes.core.rabbitmq.service.RabbitNodeWatcher;
+import com.wangyy.multilanes.core.rabbitmq.node.RabbitNodeWatcher;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import com.wangyy.multilanes.core.utils.FeatureTagUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +75,7 @@ public class RabbitProducerMultiLanesAspect {
         }
         //featureTag节点存在则发送至feat Exchange
         String mockExchange = FeatureTagUtils.buildWithFeatureTag(exchangeParam, ft);
-        if (rabbitNodeWatcher.isExchangeExist(mockExchange)) {
+        if (rabbitNodeWatcher.exist(mockExchange)) {
             return mockExchange;
         }
         //否则发送至base-line Exchange

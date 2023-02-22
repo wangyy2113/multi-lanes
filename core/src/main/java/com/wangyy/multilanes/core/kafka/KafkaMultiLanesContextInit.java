@@ -1,9 +1,9 @@
 package com.wangyy.multilanes.core.kafka;
 
 import com.wangyy.multilanes.core.annotation.ConditionalOnConfig;
-import com.wangyy.multilanes.core.control.zookeeper.MultiLanesNodeWatcher;
 import com.wangyy.multilanes.core.kafka.consumer.KafkaConsumerAspect;
 import com.wangyy.multilanes.core.kafka.consumer.KafkaConsumerGroupChangeProcessor;
+import com.wangyy.multilanes.core.kafka.node.KafkaNodeWatcher;
 import com.wangyy.multilanes.core.kafka.producer.KafkaProducerAspect;
 import com.wangyy.multilanes.core.kafka.producer.KafkaProducerFeatureTagProcessor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class KafkaMultiLanesContextInit {
     }
 
     @Bean
-    public KafkaConsumerAspect kafkaConsumerAspect(MultiLanesNodeWatcher nodeWatcher) {
+    public KafkaConsumerAspect kafkaConsumerAspect(KafkaNodeWatcher nodeWatcher) {
         return new KafkaConsumerAspect(nodeWatcher);
     }
 

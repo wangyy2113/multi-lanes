@@ -1,6 +1,6 @@
 package com.wangyy.multilanes.core.kafka.consumer;
 
-import com.wangyy.multilanes.core.control.zookeeper.MultiLanesNodeWatcher;
+import com.wangyy.multilanes.core.kafka.node.KafkaNodeWatcher;
 import com.wangyy.multilanes.core.trace.FTConstants;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +18,9 @@ import org.aspectj.lang.annotation.Aspect;
 @Slf4j
 public class KafkaConsumerAspect {
 
-    private MultiLanesNodeWatcher nodeWatcher;
+    private KafkaNodeWatcher nodeWatcher;
 
-    public KafkaConsumerAspect(MultiLanesNodeWatcher nodeWatcher) {
+    public KafkaConsumerAspect(KafkaNodeWatcher nodeWatcher) {
         this.nodeWatcher = nodeWatcher;
     }
 
