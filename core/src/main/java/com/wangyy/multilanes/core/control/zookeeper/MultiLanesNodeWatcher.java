@@ -2,7 +2,7 @@ package com.wangyy.multilanes.core.control.zookeeper;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.wangyy.multilanes.core.control.Lanes;
+import com.wangyy.multilanes.core.control.LanesInfra;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
@@ -29,7 +29,7 @@ public abstract class MultiLanesNodeWatcher {
         this.curatorFramework = curatorFramework;
     }
 
-    protected abstract Lanes lanes();
+    protected abstract LanesInfra lanesInfra();
 
     public void registerNode(String suffix) {
         if (StringUtils.isEmpty(suffix)) {
@@ -52,6 +52,6 @@ public abstract class MultiLanesNodeWatcher {
     }
 
     private String buildPath(String suffix) {
-        return NODE_PREFIX + "/" + lanes().name() + "/" + suffix;
+        return NODE_PREFIX + "/" + lanesInfra().name() + "/" + suffix;
     }
 }

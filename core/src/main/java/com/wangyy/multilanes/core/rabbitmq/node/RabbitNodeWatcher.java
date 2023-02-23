@@ -1,6 +1,6 @@
 package com.wangyy.multilanes.core.rabbitmq.node;
 
-import com.wangyy.multilanes.core.control.Lanes;
+import com.wangyy.multilanes.core.control.LanesInfra;
 import com.wangyy.multilanes.core.control.zookeeper.MultiLanesNodeWatcher;
 import org.apache.curator.framework.CuratorFramework;
 
@@ -17,7 +17,7 @@ public class RabbitNodeWatcher extends MultiLanesNodeWatcher {
     }
 
     @Override
-    protected Lanes lanes() {
-        return Lanes.RABBITMQ;
+    protected LanesInfra lanesInfra() {
+        return LanesInfra.RABBITMQ;
     }
 }

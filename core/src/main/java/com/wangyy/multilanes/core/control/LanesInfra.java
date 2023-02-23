@@ -1,6 +1,6 @@
 package com.wangyy.multilanes.core.control;
 
-public enum Lanes {
+public enum LanesInfra {
 
     KAFKA,
 

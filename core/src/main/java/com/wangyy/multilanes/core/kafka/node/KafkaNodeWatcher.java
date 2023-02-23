@@ -3,7 +3,7 @@ package com.wangyy.multilanes.core.kafka.node;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.wangyy.multilanes.core.annotation.ConditionalOnConfig;
-import com.wangyy.multilanes.core.control.Lanes;
+import com.wangyy.multilanes.core.control.LanesInfra;
 import com.wangyy.multilanes.core.control.zookeeper.MultiLanesNodeWatcher;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ public class KafkaNodeWatcher extends MultiLanesNodeWatcher {
     }
 
     @Override
-    protected Lanes lanes() {
-        return Lanes.KAFKA;
+    protected LanesInfra lanesInfra() {
+        return LanesInfra.KAFKA;
     }
 }
