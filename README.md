@@ -14,8 +14,8 @@ docker & docker-compose & jdk1.8 & maven
 ---------------
 
 > * HTTP
-> * RPC       TODO
-> * kafka     TODO
+> * RPC         TODO
+> * kafka     
 > * RabbitMQ
 
 

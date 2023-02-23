@@ -3,8 +3,7 @@ package com.wangyy.multilanes.core.rabbitmq;
 import com.wangyy.multilanes.core.annotation.ConditionalOnConfig;
 import com.wangyy.multilanes.core.rabbitmq.postprocessor.RabbitFeatureTagAfterReceiveAppender;
 import com.wangyy.multilanes.core.rabbitmq.postprocessor.RabbitTemplateFeatureTagBeforePublishAppender;
-import com.wangyy.multilanes.core.rabbitmq.service.RabbitNodeWatcher;
-import com.wangyy.multilanes.core.rabbitmq.service.RabbitNodeWatcherImpl;
+import com.wangyy.multilanes.core.rabbitmq.node.RabbitNodeWatcher;
 import com.wangyy.multilanes.core.rabbitmq.solver.RabbitProducerMultiLanesAspect;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
@@ -38,7 +37,7 @@ public class RabbitMultiLanesContextsIni {
 
     @Bean
     public RabbitNodeWatcher rabbitNodeWatcher(CuratorFramework curatorFramework) {
-        return new RabbitNodeWatcherImpl(curatorFramework);
+        return new RabbitNodeWatcher(curatorFramework);
     }
 
     @Bean
@@ -71,7 +70,7 @@ public class RabbitMultiLanesContextsIni {
         RabbitNodeWatcher rabbitNodeWatcher = applicationContext.getBean(RabbitNodeWatcher.class);
         List<Exchange> exchanges = new LinkedList(applicationContext.getBeansOfType(Exchange.class).values());
 
-        exchanges.forEach(rabbitNodeWatcher::registerExchange);
+        exchanges.stream().map(Exchange::getName).forEach(rabbitNodeWatcher::registerNode);
     }
 
     private void listenerPostProcessorInit() {

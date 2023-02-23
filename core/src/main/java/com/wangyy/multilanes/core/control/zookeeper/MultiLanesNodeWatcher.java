@@ -2,46 +2,40 @@ package com.wangyy.multilanes.core.control.zookeeper;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.wangyy.multilanes.core.annotation.ConditionalOnConfig;
-import com.wangyy.multilanes.core.trace.FeatureTagContext;
+import com.wangyy.multilanes.core.control.LanesInfra;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by houyantao on 2023/2/20
  */
 @Slf4j
-@Service
-@ConditionalOnConfig("multi-lanes.enable")
-public class MultiLanesNodeWatcher {
+public abstract class MultiLanesNodeWatcher {
 
     private static final String NODE_PREFIX = "/multi-lanes";
 
-    @Autowired
     private CuratorFramework curatorFramework;
-
-    @Value("${spring.application.name}")
-    private String serviceName;
 
     private final LoadingCache<String, Boolean> nodeCache = Caffeine.newBuilder()
             .expireAfterWrite(2, TimeUnit.SECONDS)
             .refreshAfterWrite(1, TimeUnit.SECONDS)
             .build(path -> curatorFramework.checkExists().forPath(path) != null);
 
-    @PostConstruct
-    public void init() {
-        registerServicePath();
+    protected MultiLanesNodeWatcher(CuratorFramework curatorFramework) {
+        this.curatorFramework = curatorFramework;
     }
 
-    public void registerServicePath() {
-        String path = buildPath(FeatureTagContext.getDEFAULT());
+    protected abstract LanesInfra lanesInfra();
+
+    public void registerNode(String suffix) {
+        if (StringUtils.isEmpty(suffix)) {
+            throw new IllegalArgumentException("suffix cannot be empty!");
+        }
+        String path = buildPath(suffix);
         try {
             curatorFramework.create()
                     .creatingParentsIfNeeded()
@@ -53,11 +47,11 @@ public class MultiLanesNodeWatcher {
         }
     }
 
-    public boolean exist(String featureTag) {
-        return nodeCache.get(buildPath(featureTag));
+    public boolean exist(String suffix) {
+        return nodeCache.get(buildPath(suffix));
     }
 
-    private String buildPath(String featureTag) {
-        return NODE_PREFIX + "/" + serviceName + "/" + featureTag;
+    private String buildPath(String suffix) {
+        return NODE_PREFIX + "/" + lanesInfra().name() + "/" + suffix;
     }
 }
