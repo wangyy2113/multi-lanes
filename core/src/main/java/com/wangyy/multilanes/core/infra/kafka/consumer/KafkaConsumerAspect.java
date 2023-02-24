@@ -1,6 +1,6 @@
-package com.wangyy.multilanes.core.kafka.consumer;
+package com.wangyy.multilanes.core.infra.kafka.consumer;
 
-import com.wangyy.multilanes.core.kafka.node.KafkaNodeWatcher;
+import com.wangyy.multilanes.core.infra.kafka.node.KafkaNodeWatcher;
 import com.wangyy.multilanes.core.trace.FTConstants;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import lombok.extern.slf4j.Slf4j;

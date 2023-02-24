@@ -1,9 +1,9 @@
-package com.wangyy.multilanes.core.rabbitmq;
+package com.wangyy.multilanes.core.infra.rabbitmq;
 
 import com.wangyy.multilanes.core.annotation.ConditionalOnConfig;
-import com.wangyy.multilanes.core.rabbitmq.solver.RabbitAnnotationListenerMultiLanesSolver;
-import com.wangyy.multilanes.core.rabbitmq.solver.RabbitDeclarableMultiLanesSolver;
-import com.wangyy.multilanes.core.rabbitmq.solver.RabbitListenerContainerMultiLanesSolver;
+import com.wangyy.multilanes.core.infra.rabbitmq.solver.RabbitAnnotationListenerMultiLanesSolver;
+import com.wangyy.multilanes.core.infra.rabbitmq.solver.RabbitDeclarableMultiLanesSolver;
+import com.wangyy.multilanes.core.infra.rabbitmq.solver.RabbitListenerContainerMultiLanesSolver;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;

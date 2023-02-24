@@ -1,10 +1,10 @@
-package com.wangyy.multilanes.core.rabbitmq;
+package com.wangyy.multilanes.core.infra.rabbitmq;
 
 import com.wangyy.multilanes.core.annotation.ConditionalOnConfig;
-import com.wangyy.multilanes.core.rabbitmq.postprocessor.RabbitFeatureTagAfterReceiveAppender;
-import com.wangyy.multilanes.core.rabbitmq.postprocessor.RabbitTemplateFeatureTagBeforePublishAppender;
-import com.wangyy.multilanes.core.rabbitmq.node.RabbitNodeWatcher;
-import com.wangyy.multilanes.core.rabbitmq.solver.RabbitProducerMultiLanesAspect;
+import com.wangyy.multilanes.core.infra.rabbitmq.postprocessor.RabbitFeatureTagAfterReceiveAppender;
+import com.wangyy.multilanes.core.infra.rabbitmq.postprocessor.RabbitTemplateFeatureTagBeforePublishAppender;
+import com.wangyy.multilanes.core.infra.rabbitmq.node.RabbitNodeWatcher;
+import com.wangyy.multilanes.core.infra.rabbitmq.solver.RabbitProducerMultiLanesAspect;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.springframework.amqp.core.Exchange;

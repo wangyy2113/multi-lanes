@@ -1,6 +1,6 @@
-package com.wangyy.multilanes.core.rabbitmq.node;
+package com.wangyy.multilanes.core.infra.rabbitmq.node;
 
-import com.wangyy.multilanes.core.control.LanesInfra;
+import com.wangyy.multilanes.core.infra.LanesInfra;
 import com.wangyy.multilanes.core.control.zookeeper.MultiLanesNodeWatcher;
 import org.apache.curator.framework.CuratorFramework;
 

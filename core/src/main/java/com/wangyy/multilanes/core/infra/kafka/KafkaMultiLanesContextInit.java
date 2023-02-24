@@ -1,11 +1,11 @@
-package com.wangyy.multilanes.core.kafka;
+package com.wangyy.multilanes.core.infra.kafka;
 
 import com.wangyy.multilanes.core.annotation.ConditionalOnConfig;
-import com.wangyy.multilanes.core.kafka.consumer.KafkaConsumerAspect;
-import com.wangyy.multilanes.core.kafka.consumer.KafkaConsumerGroupChangeProcessor;
-import com.wangyy.multilanes.core.kafka.node.KafkaNodeWatcher;
-import com.wangyy.multilanes.core.kafka.producer.KafkaProducerAspect;
-import com.wangyy.multilanes.core.kafka.producer.KafkaProducerFeatureTagProcessor;
+import com.wangyy.multilanes.core.infra.kafka.consumer.KafkaConsumerAspect;
+import com.wangyy.multilanes.core.infra.kafka.consumer.KafkaConsumerGroupChangeProcessor;
+import com.wangyy.multilanes.core.infra.kafka.node.KafkaNodeWatcher;
+import com.wangyy.multilanes.core.infra.kafka.producer.KafkaProducerAspect;
+import com.wangyy.multilanes.core.infra.kafka.producer.KafkaProducerFeatureTagProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

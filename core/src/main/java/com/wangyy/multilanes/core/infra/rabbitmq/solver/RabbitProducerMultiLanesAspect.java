@@ -1,6 +1,6 @@
-package com.wangyy.multilanes.core.rabbitmq.solver;
+package com.wangyy.multilanes.core.infra.rabbitmq.solver;
 
-import com.wangyy.multilanes.core.rabbitmq.node.RabbitNodeWatcher;
+import com.wangyy.multilanes.core.infra.rabbitmq.node.RabbitNodeWatcher;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import com.wangyy.multilanes.core.utils.FeatureTagUtils;
 import lombok.extern.slf4j.Slf4j;
