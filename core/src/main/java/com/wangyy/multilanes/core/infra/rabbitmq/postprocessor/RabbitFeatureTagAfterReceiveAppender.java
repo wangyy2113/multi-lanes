@@ -1,4 +1,4 @@
-package com.wangyy.multilanes.core.rabbitmq.postprocessor;
+package com.wangyy.multilanes.core.infra.rabbitmq.postprocessor;
 
 import com.wangyy.multilanes.core.trace.FTConstants;
 import com.wangyy.multilanes.core.trace.FeatureTagContext;

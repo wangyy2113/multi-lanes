@@ -1,4 +1,4 @@
-package com.wangyy.multilanes.core.control;
+package com.wangyy.multilanes.core.infra;
 
 public enum LanesInfra {
 

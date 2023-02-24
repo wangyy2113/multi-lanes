@@ -1,4 +1,4 @@
-package com.wangyy.multilanes.core.rabbitmq.solver;
+package com.wangyy.multilanes.core.infra.rabbitmq.solver;
 
 import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import com.wangyy.multilanes.core.utils.FeatureTagUtils;

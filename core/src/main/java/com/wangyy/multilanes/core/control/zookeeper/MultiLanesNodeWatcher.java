@@ -2,7 +2,7 @@ package com.wangyy.multilanes.core.control.zookeeper;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.wangyy.multilanes.core.control.LanesInfra;
+import com.wangyy.multilanes.core.infra.LanesInfra;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
