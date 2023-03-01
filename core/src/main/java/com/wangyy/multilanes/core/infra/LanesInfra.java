@@ -4,5 +4,7 @@ public enum LanesInfra {
 
     KAFKA,
 
-    RABBITMQ
+    RABBITMQ,
+
+    FINAGLE
 }
