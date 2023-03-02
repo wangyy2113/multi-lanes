@@ -54,21 +54,6 @@ public abstract class MultiLanesNodeWatcher {
         registerNode(suffix, null);
     }
 
-    public void deleteNode(String suffix) {
-        if (StringUtils.isEmpty(suffix)) {
-            throw new IllegalArgumentException("suffix cannot be empty!");
-        }
-        String path = MultiLanesZKPathUtils.buildPath(lanesInfra(), suffix);
-        try {
-            curatorFramework.delete()
-                    .deletingChildrenIfNeeded()
-                    .forPath(path);
-        } catch (Exception e) {
-            log.error("delete zookeeper path {} error ", path, e);
-            throw new RuntimeException(e);
-        }
-    }
-
     public boolean exist(String suffix) {
         return nodeCache.get(MultiLanesZKPathUtils.buildPath(lanesInfra(), suffix));
     }

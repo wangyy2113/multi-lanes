@@ -30,11 +30,12 @@ class FinagleServerByteBuddyAgent implements BeanDefinitionRegistryPostProcessor
         ByteBuddyAgent.install();
         new AgentBuilder
                 .Default()
-                .type(ElementMatchers.nameStartsWith("com.twitter.finagle.ListeningServer"))
+                .type(ElementMatchers.nameStartsWith("com.twitter.finagle.Announcer"))
                 .transform((builder, typeDescription, classLoader, javaModule) ->
                         builder.method(ElementMatchers.hasMethodName("announce").and(ElementMatchers.isPublic()))
                                 .intercept(MethodDelegation.to(FinagleServerInitInterceptor.class)))
                 .installOnByteBuddyAgent();
+        log.info("install");
     }
 
     @Override

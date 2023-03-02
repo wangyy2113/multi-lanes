@@ -41,7 +41,7 @@ class FinagleClientByteBuddyAgent implements BeanDefinitionRegistryPostProcessor
                         builder.method(ElementMatchers.isPublic())
                         .intercept(MethodDelegation.to(FinagleInterfaceInterceptor.class)))
                 .installOnByteBuddyAgent();
-
+        log.info("install");
     }
 
     @Override
