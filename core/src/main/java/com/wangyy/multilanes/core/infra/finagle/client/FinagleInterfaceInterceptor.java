@@ -86,6 +86,7 @@ public class FinagleInterfaceInterceptor implements ApplicationContextAware {
             String multiLanesPath;
 
             if (PATH_EXIST_CACHE.get(info.getMultiLanesZkPathSuffix(featureTag))) {
+                //TODO 目前这里可以跨泳道 eg:feat-a -> feat-b，也可以限制一下当前是base泳道才能路由所有泳道，否则最多只能路由到自身feat泳道
                 multiLanesInterfaceKey = buildMultiLanesInterfaceKey(featureTag, interfaceName);
                 multiLanesPath = info.getMultiLanesZkPath(featureTag);
             } else {
@@ -104,7 +105,7 @@ public class FinagleInterfaceInterceptor implements ApplicationContextAware {
             return method.invoke(multiLanesClient, args);
 
         } finally {
-            PROXY_FLAG.set(false);
+            PROXY_FLAG.remove();
         }
     }
 

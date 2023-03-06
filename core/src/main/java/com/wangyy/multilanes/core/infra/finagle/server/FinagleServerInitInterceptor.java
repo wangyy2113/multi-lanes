@@ -54,7 +54,7 @@ public class FinagleServerInitInterceptor {
             PROXY_FLAG.set(true);
             return method.invoke(thisObj, args);
         } finally {
-            PROXY_FLAG.set(false);
+            PROXY_FLAG.remove();
         }
     }
 }
