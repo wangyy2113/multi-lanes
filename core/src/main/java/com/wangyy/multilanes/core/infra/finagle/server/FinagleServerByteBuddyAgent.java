@@ -30,10 +30,16 @@ class FinagleServerByteBuddyAgent implements BeanDefinitionRegistryPostProcessor
         ByteBuddyAgent.install();
         new AgentBuilder
                 .Default()
+                //拦截announce接口
                 .type(ElementMatchers.nameStartsWith("com.twitter.finagle.Announcer"))
                 .transform((builder, typeDescription, classLoader, javaModule) ->
                         builder.method(ElementMatchers.hasMethodName("announce").and(ElementMatchers.isPublic()))
                                 .intercept(MethodDelegation.to(FinagleServerInitInterceptor.class)))
+                //拦截rpc handle接口 (apply方法)
+                .type(ElementMatchers.nameEndsWith("$FinagleService"))
+                .transform((builder, typeDescription, classLoader, javaModule) ->
+                        builder.method(ElementMatchers.hasMethodName("apply").and(ElementMatchers.isPublic()))
+                                .intercept(MethodDelegation.to(FinagleServerHandleInterceptor.class)))
                 .installOnByteBuddyAgent();
         log.info("install");
     }

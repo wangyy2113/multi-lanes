@@ -12,7 +12,7 @@ import java.util.concurrent.Callable;
 
 /**
  * 拦截Server announce初始化入参(rpc server注册host)后记录
- *
+ * <p>
  * 暂时只支持finagle server注册zk
  */
 @Slf4j
@@ -21,13 +21,14 @@ public class FinagleServerInitInterceptor {
     private static final ThreadLocal<Boolean> PROXY_FLAG = new ThreadLocal<>();
 
     @RuntimeType
-    public static Object intercept(@Origin Method method,
-                                   @This Object thisObj,
-                                   @SuperCall Callable<?> callable,
-                                   @AllArguments Object[] args) throws Exception {
-        boolean isProxy = PROXY_FLAG.get() != null && PROXY_FLAG.get();
+    public static Object announceIntercept(@Origin Method method,
+                                           @This Object thisObj,
+                                           @SuperCall Callable<?> callable,
+                                           @AllArguments Object[] args) throws Exception {
+
+        Boolean isProxy = PROXY_FLAG.get();
         //不拦截 proxy请求，否则会出现死循环
-        if (isProxy) {
+        if (isProxy != null && isProxy) {
             return callable.call();
         }
 
