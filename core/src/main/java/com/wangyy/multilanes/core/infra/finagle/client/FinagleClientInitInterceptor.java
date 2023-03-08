@@ -46,7 +46,7 @@ public class FinagleClientInitInterceptor {
             FinagleInterfaceInterceptor.register(addr, iface);
 
         } else {
-            log.warn("[multi-lanes Finagle] ignore newIface argsSize:{} args:{}", args.length, args);
+            log.debug("[multi-lanes Finagle] ignore newIface argsSize:{} args:{}", args.length, args);
         }
     }
 }

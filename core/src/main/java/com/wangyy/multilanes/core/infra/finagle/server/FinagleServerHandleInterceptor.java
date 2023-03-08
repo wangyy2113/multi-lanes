@@ -7,7 +7,6 @@ import com.wangyy.multilanes.core.trace.FeatureTagContext;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.implementation.bind.annotation.*;
 
-import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 
 /**
@@ -19,11 +18,9 @@ public class FinagleServerHandleInterceptor {
 
     @RuntimeType
     public static Object serviceIntercept(@SuperCall Callable<?> callable) throws Exception {
-        try {
+        if (Contexts.broadcast().contains(MLFinagleFeatureTagContext$.MODULE$)) {
             MLFinagleFeatureTagContext ft = Contexts.broadcast().apply(MLFinagleFeatureTagContext$.MODULE$);
             FeatureTagContext.set(ft.featureTag());
-        } catch (NoSuchElementException e) {
-            log.warn("MLFinagleFeatureTagContext$.MODULE$ finagle request non featureTag");
         }
         return callable.call();
     }
