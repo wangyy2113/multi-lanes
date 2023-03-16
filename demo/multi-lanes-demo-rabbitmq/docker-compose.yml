@@ -44,7 +44,7 @@ services:
       spring_rabbitmq_host: rabbitmq
       CONFIG_FORCE_featureTag: base
       CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
-    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "java", " -Dconfig.override_with_env_vars=true -jar multi-lanes-demo-rabbitmq-app-a.jar"]
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-rabbitmq-app-a.jar"]
     volumes:
       - ./wait-for-it:/wait-for-it
 
@@ -63,7 +63,7 @@ services:
       spring_rabbitmq_host: rabbitmq
       CONFIG_FORCE_featureTag: base
       CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
-    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "java", " -Dconfig.override_with_env_vars=true -jar multi-lanes-demo-rabbitmq-app-b.jar"]
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-rabbitmq-app-b.jar"]
     volumes:
       - ./wait-for-it:/wait-for-it
 
@@ -82,7 +82,7 @@ services:
       spring_rabbitmq_host: rabbitmq
       CONFIG_FORCE_featureTag: base
       CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
-    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "java", " -Dconfig.override_with_env_vars=true -jar multi-lanes-demo-rabbitmq-app-c.jar"]
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-rabbitmq-app-c.jar"]
     volumes:
       - ./wait-for-it:/wait-for-it
 
@@ -101,7 +101,7 @@ services:
       spring_rabbitmq_host: rabbitmq
       CONFIG_FORCE_featureTag: base
       CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
-    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "java", " -Dconfig.override_with_env_vars=true -jar multi-lanes-demo-rabbitmq-app-d.jar"]
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-rabbitmq-app-d.jar"]
     volumes:
       - ./wait-for-it:/wait-for-it
 
@@ -121,7 +121,7 @@ services:
       spring_rabbitmq_host: rabbitmq
       CONFIG_FORCE_featureTag: feature-x
       CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
-    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "java", " -Dconfig.override_with_env_vars=true -jar multi-lanes-demo-rabbitmq-app-b.jar"]
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-rabbitmq-app-b.jar"]
     volumes:
       - ./wait-for-it:/wait-for-it
 
@@ -139,6 +139,6 @@ services:
       spring_rabbitmq_host: rabbitmq
       CONFIG_FORCE_featureTag: feature-x
       CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
-    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "java", " -Dconfig.override_with_env_vars=true -jar multi-lanes-demo-rabbitmq-app-d.jar"]
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-rabbitmq-app-d.jar"]
     volumes:
       - ./wait-for-it:/wait-for-it

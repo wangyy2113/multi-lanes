@@ -1,6 +1,5 @@
 FROM openjdk:8-jdk-alpine
 
+COPY target/multi-lanes-demo-rabbitmq-app-b-1.0-SNAPSHOT.jar /app/multi-lanes-demo-rabbitmq-app-b.jar
 
-ADD target/multi-lanes-demo-rabbitmq-app-b-1.0-SNAPSHOT.jar multi-lanes-demo-rabbitmq-app-b.jar
-ENV JAVA_OPTS=""
-ENTRYPOINT exec java $JAVA_OPTS -jar /multi-lanes-demo-rabbitmq-app-b.jar
+WORKDIR /app
