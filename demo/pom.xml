@@ -18,6 +18,7 @@
     <modules>
         <module>multi-lanes-demo-rabbitmq</module>
         <module>multi-lanes-demo-kafka</module>
+        <module>multi-lanes-demo-finagle</module>
     </modules>
 
     <properties>
