@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class ZkAutoConfiguration {
 
     @Bean
+    @ConditionalOnMissingBean(value = CuratorFramework.class)
     public CuratorFramework curatorFramework() throws InterruptedException {
         int blockUntilConnectedWait = 5;
 

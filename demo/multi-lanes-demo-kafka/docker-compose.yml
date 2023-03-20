@@ -43,7 +43,7 @@ services:
       CONFIG_FORCE_featureTag: base
       CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
       CONFIG_FORCE_kafka.brokers: kafka:9092
-    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "java", " -Dconfig.override_with_env_vars=true -jar multi-lanes-demo-kafka-app-a.jar"]
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-kafka-app-a.jar"]
     volumes:
       - ./wait-for-it:/wait-for-it
 
@@ -62,7 +62,7 @@ services:
       CONFIG_FORCE_featureTag: base
       CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
       CONFIG_FORCE_kafka.brokers: kafka:9092
-    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "java", " -Dconfig.override_with_env_vars=true -jar multi-lanes-demo-kafka-app-b.jar"]
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-kafka-app-b.jar"]
     volumes:
       - ./wait-for-it:/wait-for-it
 
@@ -81,7 +81,7 @@ services:
       CONFIG_FORCE_featureTag: base
       CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
       CONFIG_FORCE_kafka.brokers: kafka:9092
-    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "java", " -Dconfig.override_with_env_vars=true -jar multi-lanes-demo-kafka-app-c.jar"]
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-kafka-app-c.jar"]
     volumes:
       - ./wait-for-it:/wait-for-it
 
@@ -100,7 +100,7 @@ services:
       CONFIG_FORCE_featureTag: base
       CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
       CONFIG_FORCE_kafka.brokers: kafka:9092
-    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "java", " -Dconfig.override_with_env_vars=true -jar multi-lanes-demo-kafka-app-d.jar"]
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-kafka-app-d.jar"]
     volumes:
       - ./wait-for-it:/wait-for-it
 
@@ -120,7 +120,7 @@ services:
       CONFIG_FORCE_featureTag: feature-x
       CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
       CONFIG_FORCE_kafka.brokers: kafka:9092
-    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "java", " -Dconfig.override_with_env_vars=true -jar multi-lanes-demo-kafka-app-b.jar"]
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-kafka-app-b.jar"]
     volumes:
       - ./wait-for-it:/wait-for-it
 
@@ -138,6 +138,6 @@ services:
       CONFIG_FORCE_featureTag: feature-x
       CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
       CONFIG_FORCE_kafka.brokers: kafka:9092
-    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "java", " -Dconfig.override_with_env_vars=true -jar multi-lanes-demo-kafka-app-d.jar"]
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-kafka-app-d.jar"]
     volumes:
       - ./wait-for-it:/wait-for-it

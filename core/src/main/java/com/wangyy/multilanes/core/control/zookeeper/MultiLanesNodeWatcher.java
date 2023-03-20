@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.wangyy.multilanes.core.infra.LanesInfra;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.api.ACLBackgroundPathAndBytesable;
 import org.apache.zookeeper.CreateMode;
 import org.springframework.util.StringUtils;
 
@@ -16,9 +17,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public abstract class MultiLanesNodeWatcher {
 
-    private static final String NODE_PREFIX = "/multi-lanes";
-
-    private CuratorFramework curatorFramework;
+    protected CuratorFramework curatorFramework;
 
     private final LoadingCache<String, Boolean> nodeCache = Caffeine.newBuilder()
             .expireAfterWrite(2, TimeUnit.SECONDS)
@@ -31,27 +30,32 @@ public abstract class MultiLanesNodeWatcher {
 
     protected abstract LanesInfra lanesInfra();
 
-    public void registerNode(String suffix) {
+    public void registerNode(String suffix, byte[] datas) {
         if (StringUtils.isEmpty(suffix)) {
             throw new IllegalArgumentException("suffix cannot be empty!");
         }
-        String path = buildPath(suffix);
+        String path =  MultiLanesZKPathUtils.buildPath(lanesInfra(), suffix);
         try {
-            curatorFramework.create()
+            ACLBackgroundPathAndBytesable<String> aclBackgroundPathAndBytesable = curatorFramework.create()
                     .creatingParentsIfNeeded()
-                    .withMode(CreateMode.EPHEMERAL)
-                    .forPath(path);
+                    .withMode(CreateMode.EPHEMERAL);
+            if (datas == null) {
+                aclBackgroundPathAndBytesable.forPath(path);
+            } else {
+                aclBackgroundPathAndBytesable.forPath(path, datas);
+            }
         } catch (Exception e) {
-            log.error("register path {} to zookeeper error", path, e);
+            log.error("register path {} to zookeeper error. datas:{}", path, datas, e);
             throw new RuntimeException(e);
         }
     }
 
-    public boolean exist(String suffix) {
-        return nodeCache.get(buildPath(suffix));
+    public void registerNode(String suffix) {
+        registerNode(suffix, null);
     }
 
-    private String buildPath(String suffix) {
-        return NODE_PREFIX + "/" + lanesInfra().name() + "/" + suffix;
+    public boolean exist(String suffix) {
+        return nodeCache.get(MultiLanesZKPathUtils.buildPath(lanesInfra(), suffix));
     }
+
 }

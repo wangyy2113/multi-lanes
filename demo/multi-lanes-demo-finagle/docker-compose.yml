@@ -1,0 +1,130 @@
+version: "3.8"
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: zookeeper
+    networks:
+      - app-tier
+    ports:
+      - 2181:2181
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+
+################################# base-line #################################
+  app-a-base-line:
+    image: multi-lanes-demo-finagle-app-a
+    networks:
+      - app-tier
+    ports:
+      - 8006:8006
+    container_name: multi-lanes-demo-finagle-app-a_base_line
+    depends_on:
+      - zookeeper
+    environment:
+      CONFIG_FORCE_featureTag: base
+      CONFIG_FORCE_finagle.zkHost: zookeeper:2181
+      CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-finagle-app-a.jar"]
+    volumes:
+      - ./wait-for-it:/wait-for-it
+
+
+  app-b-base-line:
+    image: multi-lanes-demo-finagle-app-b
+    networks:
+      - app-tier
+    ports:
+      - 8007:8007
+      - 19001:19001
+    container_name: multi-lanes-demo-finagle-app-b_base_line
+    depends_on:
+      - zookeeper
+    environment:
+      CONFIG_FORCE_featureTag: base
+      CONFIG_FORCE_finagle.zkHost: zookeeper:2181
+      CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-finagle-app-b.jar"]
+    volumes:
+      - ./wait-for-it:/wait-for-it
+
+
+  app-c-base-line:
+    image: multi-lanes-demo-finagle-app-c
+    networks:
+      - app-tier
+    ports:
+      - 8008:8008
+      - 19002:19002
+    container_name: multi-lanes-demo-finagle-app-c_base_line
+    depends_on:
+      - zookeeper
+    environment:
+      CONFIG_FORCE_featureTag: base
+      CONFIG_FORCE_finagle.zkHost: zookeeper:2181
+      CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-finagle-app-c.jar"]
+    volumes:
+      - ./wait-for-it:/wait-for-it
+
+
+  app-d-base-line:
+    image: multi-lanes-demo-finagle-app-d
+    networks:
+      - app-tier
+    ports:
+      - 8009:8009
+      - 19003:19003
+    container_name: multi-lanes-demo-finagle-app-d_base_line
+    depends_on:
+      - zookeeper
+    environment:
+      CONFIG_FORCE_featureTag: base
+      CONFIG_FORCE_finagle.zkHost: zookeeper:2181
+      CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-finagle-app-d.jar"]
+    volumes:
+      - ./wait-for-it:/wait-for-it
+
+################################# feature-x-line #################################
+
+  app-b-feature-x-line:
+    image: multi-lanes-demo-finagle-app-b
+    networks:
+      - app-tier
+    ports:
+      - 8017:8007
+      - 19011:19001
+    container_name: multi-lanes-demo-finagle-app-b_feature-x_line
+    depends_on:
+      - zookeeper
+    environment:
+      CONFIG_FORCE_featureTag: feature-x
+      CONFIG_FORCE_finagle.zkHost: zookeeper:2181
+      CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-finagle-app-b.jar"]
+    volumes:
+      - ./wait-for-it:/wait-for-it
+
+  app-d-feature-x-line:
+    image: multi-lanes-demo-finagle-app-d
+    networks:
+      - app-tier
+    ports:
+      - 8019:8009
+      - 19013:19003
+    container_name: multi-lanes-demo-finagle-app-d_feature-x_line
+    depends_on:
+      - zookeeper
+    environment:
+      CONFIG_FORCE_featureTag: feature-x
+      CONFIG_FORCE_finagle.zkHost: zookeeper:2181
+      CONFIG_FORCE_spring.cloud.zookeeper.connectString: zookeeper:2181
+    entrypoint: [ "sh", "/wait-for-it/wait-for-infras.sh", "--", "sh", " /wait-for-it/run.sh", "multi-lanes-demo-finagle-app-d.jar"]
+    volumes:
+      - ./wait-for-it:/wait-for-it

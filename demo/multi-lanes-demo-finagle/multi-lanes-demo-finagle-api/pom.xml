@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>multi-lanes-demo-rabbitmq</artifactId>
+        <groupId>com.wangyy</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>multi-lanes-demo-finagle-api</artifactId>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>scrooge-core_2.11</artifactId>
+            <version>4.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+            <version>0.9.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>util-core_2.11</artifactId>
+            <version>6.33.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>finagle-core_2.11</artifactId>
+            <version>6.33.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>finagle-thrift_2.11</artifactId>
+            <version>6.33.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>scrooge-runtime_2.11</artifactId>
+            <version>4.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>finagle-serversets_2.11</artifactId>
+            <version>6.33.1</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-log4j12</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-jdk14</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
+
+    <!-- .thrift文件生成java文件插件，需要更新生成代码文件时需要使用 -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.twitter</groupId>
+                <artifactId>scrooge-maven-plugin</artifactId>
+                <version>4.5.0</version>
+                <configuration>
+                    <language>experimental-java</language> <!-- default is scala -->
+                    <thriftOpts>
+                        <!-- add other Scrooge command line options using thriftOpts -->
+                        <thriftOpt>--finagle</thriftOpt>
+                    </thriftOpts>
+                    <!-- tell scrooge to not to build the extracted thrift files (defaults to true) -->
+                    <buildExtractedThrift>false</buildExtractedThrift>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>thrift-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>thrift-test-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>process-sources</id>
+                        <phase>process-sources</phase>
+                        <configuration>
+                            <tasks>
+                                <move file="target/generated-sources/thrift/scrooge" tofile="src/main/java"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
