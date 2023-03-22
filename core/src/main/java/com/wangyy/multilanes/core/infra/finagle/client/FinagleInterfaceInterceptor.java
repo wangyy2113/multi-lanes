@@ -58,8 +58,8 @@ public class FinagleInterfaceInterceptor implements ApplicationContextAware {
     //用于判断zk是否存在对应子节点
     //k: eg: /multi-lanes/FINAGLE/feature-x/service/test 下是否有子节点
     private static final LoadingCache<String, Boolean> PATH_EXIST_CACHE = Caffeine.newBuilder()
-            .expireAfterWrite(2, TimeUnit.SECONDS)
-            .refreshAfterWrite(1, TimeUnit.SECONDS)
+            .expireAfterWrite(5, TimeUnit.SECONDS)
+            .refreshAfterWrite(2, TimeUnit.SECONDS)
             .build(path -> {
                 try {
                     List<String> childs = curatorFramework.getChildren().forPath(path);
@@ -79,37 +79,37 @@ public class FinagleInterfaceInterceptor implements ApplicationContextAware {
         if (isProxy != null && isProxy) {
             return callable.call();
         }
+
+        String interfaceName = MultiLanesFinagleUtils.convertFinagleInterfaceName(method.getDeclaringClass().getName());
+
+        Info info = INTERFACE_MAP.get(interfaceName);
+        String featureTag = FeatureTagContext.get();
+        String multiLanesInterfaceKey;
+        String multiLanesPath;
+
+        if (PATH_EXIST_CACHE.get(info.getMultiLanesZkPathSuffix(featureTag))) {
+            //TODO 目前这里可以跨泳道 eg:feat-a -> feat-b，也可以限制一下当前是base泳道才能路由所有泳道，否则最多只能路由到自身feat泳道
+            multiLanesInterfaceKey = buildMultiLanesInterfaceKey(featureTag, interfaceName);
+            multiLanesPath = info.getMultiLanesZkPath(featureTag);
+        } else {
+            //TODO 这里再考虑clean一下 MULTI_LANES_INTERFACE_2_CLIENT ？ 或者有一个线程定时clean MULTI_LANES_INTERFACE_2_CLIENT
+            //不存在对应泳道服务，则路由至base泳道
+            multiLanesInterfaceKey = buildMultiLanesInterfaceKey(FTConstants.FEATURE_TAG_BASE_LANE_VALUE, interfaceName);
+            multiLanesPath = info.getMultiLanesZkPath(FTConstants.FEATURE_TAG_BASE_LANE_VALUE);
+        }
+        //路由调用特定Thrift.Client接口
+        Object multiLanesClient = MULTI_LANES_INTERFACE_2_CLIENT.computeIfAbsent(multiLanesInterfaceKey, k -> {
+            //eg: zk!zkIp:zkPorts!/multi-lanes/FINAGLE/feature-x/service/test
+            log.info("[multi-lanes Finagle] proxy multiLanesPath:{}", multiLanesPath);
+            return proxyThriftClientIface(multiLanesPath, info.getIface());
+        });
+
         //finagle 使用 Contexts.broadcast() 进行跨进程传值
         return Contexts.broadcast().let(MLFinagleFeatureTagContext$.MODULE$, new MLFinagleFeatureTagContext(FeatureTagContext.get()), new AbstractFunction0<Object>() {
             @Override
             public Object apply() {
                 try {
                     PROXY_FLAG.set(true);
-
-                    String interfaceName = MultiLanesFinagleUtils.convertFinagleInterfaceName(method.getDeclaringClass().getName());
-
-                    Info info = INTERFACE_MAP.get(interfaceName);
-                    String featureTag = FeatureTagContext.get();
-                    String multiLanesInterfaceKey;
-                    String multiLanesPath;
-
-                    if (PATH_EXIST_CACHE.get(info.getMultiLanesZkPathSuffix(featureTag))) {
-                        //TODO 目前这里可以跨泳道 eg:feat-a -> feat-b，也可以限制一下当前是base泳道才能路由所有泳道，否则最多只能路由到自身feat泳道
-                        multiLanesInterfaceKey = buildMultiLanesInterfaceKey(featureTag, interfaceName);
-                        multiLanesPath = info.getMultiLanesZkPath(featureTag);
-                    } else {
-                        //TODO 这里再考虑clean一下 MULTI_LANES_INTERFACE_2_CLIENT ？ 或者有一个线程定时clean MULTI_LANES_INTERFACE_2_CLIENT
-                        //不存在对应泳道服务，则路由至base泳道
-                        multiLanesInterfaceKey = buildMultiLanesInterfaceKey(FTConstants.FEATURE_TAG_BASE_LANE_VALUE, interfaceName);
-                        multiLanesPath = info.getMultiLanesZkPath(FTConstants.FEATURE_TAG_BASE_LANE_VALUE);
-                    }
-
-                    //路由调用特定Thrift.Client接口
-                    Object multiLanesClient = MULTI_LANES_INTERFACE_2_CLIENT.computeIfAbsent(multiLanesInterfaceKey, k -> {
-                        //eg: zk!zkIp:zkPorts!/multi-lanes/FINAGLE/feature-x/service/test
-                        log.info("[multi-lanes Finagle] proxy multiLanesPath:{}", multiLanesPath);
-                        return proxyThriftClientIface(multiLanesPath, info.getIface());
-                    });
                     return method.invoke(multiLanesClient, args);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
