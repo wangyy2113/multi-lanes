@@ -3,6 +3,7 @@ package com.wangyy.multilanes.demo.finagle.appa.conf;
 import com.twitter.finagle.Thrift;
 import com.twitter.util.Duration;
 import com.typesafe.config.ConfigFactory;
+import com.wangyy.multilanes.core.infra.finagle.OmniBalancers;
 import com.wangyy.multilanes.demo.finagle.api.A2Bservice;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -22,6 +23,8 @@ public class ClientConfiguration {
 
         return Thrift.client()
                 .withLabel(label)
+                //.withLoadBalancer().apply(Balancers.heap(new Random()))
+                .withLoadBalancer().apply(OmniBalancers.featureTagRoute())
                 .withProtocolFactory(new TBinaryProtocol.Factory())
                 .withSessionPool().minSize(10)
                 .withSessionPool().maxSize(50)

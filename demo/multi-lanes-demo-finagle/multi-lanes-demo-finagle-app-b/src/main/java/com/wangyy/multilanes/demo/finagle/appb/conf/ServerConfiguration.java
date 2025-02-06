@@ -2,6 +2,7 @@ package com.wangyy.multilanes.demo.finagle.appb.conf;
 
 import com.twitter.finagle.ListeningServer;
 import com.twitter.finagle.Thrift;
+import com.twitter.finagle.thrift.Protocols;
 import com.twitter.util.Duration;
 import com.typesafe.config.ConfigFactory;
 import com.wangyy.multilanes.demo.finagle.api.A2Bservice;
@@ -26,6 +27,8 @@ public class ServerConfiguration {
         String zkPath = "/service/a2b";
 
         String label = "finagle-demo-app-b-client";
+
+
         ListeningServer server = Thrift.server()
                 .withLabel(label)
                 .withRequestTimeout(Duration.fromSeconds(30))

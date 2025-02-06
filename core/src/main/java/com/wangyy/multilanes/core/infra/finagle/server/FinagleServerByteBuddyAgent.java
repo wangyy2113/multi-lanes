@@ -27,7 +27,7 @@ class FinagleServerByteBuddyAgent implements BeanDefinitionRegistryPostProcessor
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        ByteBuddyAgent.install();
+        /*ByteBuddyAgent.install();
         new AgentBuilder
                 .Default()
                 //拦截announce接口
@@ -41,7 +41,7 @@ class FinagleServerByteBuddyAgent implements BeanDefinitionRegistryPostProcessor
                         builder.method(ElementMatchers.hasMethodName("apply").and(ElementMatchers.isPublic()))
                                 .intercept(MethodDelegation.to(FinagleServerHandleInterceptor.class)))
                 .installOnByteBuddyAgent();
-        log.info("install");
+        log.info("install");*/
     }
 
     @Override

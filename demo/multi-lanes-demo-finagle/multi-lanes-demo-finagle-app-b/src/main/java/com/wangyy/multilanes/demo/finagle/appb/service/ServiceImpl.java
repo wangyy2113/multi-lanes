@@ -12,14 +12,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServiceImpl implements A2Bservice.FutureIface {
 
-    @Autowired
+    //@Autowired
     private B2Cservice.FutureIface b2cIface;
 
     @Override
     public Future<String> a2b(String msg) {
         log.info("receive msg:{}", msg);
         String newMsg = msg + " => " + String.format("[%s-line::B_%s]", FeatureTagContext.getDEFAULT(), FeatureTagContext.get());
-        String res = b2cIface.b2c(newMsg).get();
-        return Future.value(res);
+        //String res = b2cIface.b2c(newMsg).get();
+        return Future.value(newMsg);
     }
 }

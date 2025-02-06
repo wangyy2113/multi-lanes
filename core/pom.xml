@@ -28,6 +28,9 @@
 
 
     <dependencies>
+
+
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-framework-bom</artifactId>
@@ -152,6 +155,11 @@
 
         <dependency>
             <groupId>com.twitter</groupId>
+            <artifactId>finagle-core_2.11</artifactId>
+            <version>6.33.111</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twitter</groupId>
             <artifactId>finagle-thrift_2.11</artifactId>
             <version>6.33.0</version>
         </dependency>
@@ -165,6 +173,21 @@
             <artifactId>scala-library</artifactId>
             <version>2.11.8</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>finagle-serversets_2.11</artifactId>
+            <version>6.33.111</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-log4j12</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-jdk14</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -18,7 +19,8 @@ public class TestController {
     private A2Bservice.FutureIface futureIface;
 
     @GetMapping("/test")
-    public Object echo() {
+    public Object echo(@RequestParam(value = "featureTag") String ft) {
+        FeatureTagContext.set(ft);
         String msg = String.format("[%s-line::A_%s]", FeatureTagContext.getDEFAULT(), FeatureTagContext.get());
         return futureIface.a2b(msg).get();
     }

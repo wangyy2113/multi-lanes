@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.twitter</groupId>
             <artifactId>finagle-core_2.11</artifactId>
-            <version>6.33.0</version>
+            <version>6.33.111</version>
         </dependency>
         <dependency>
             <groupId>com.twitter</groupId>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>com.twitter</groupId>
             <artifactId>finagle-serversets_2.11</artifactId>
-            <version>6.33.1</version>
+            <version>6.33.111</version>
             <exclusions>
                 <exclusion>
                     <artifactId>slf4j-log4j12</artifactId>

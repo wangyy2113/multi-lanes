@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ClientConfiguration {
 
-    @Bean
+    //@Bean
     public B2Cservice.FutureIface rpcService() {
         String label = "finagle-demo-app-b-client";
         String zkHost = ConfigFactory.load().getString("finagle.zkHost");

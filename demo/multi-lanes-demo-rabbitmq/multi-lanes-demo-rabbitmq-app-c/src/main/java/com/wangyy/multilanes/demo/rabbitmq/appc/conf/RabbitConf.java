@@ -2,6 +2,7 @@ package com.wangyy.multilanes.demo.rabbitmq.appc.conf;
 
 import com.wangyy.multilanes.demo.rabbitmq.common.conf.RabbitConstants;
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,7 +32,7 @@ public class RabbitConf extends RabbitConstants {
     }
 
 
-    /*@Bean
+    @Bean
     public SimpleMessageListenerContainer simpleMessageListenerContainer(ConnectionFactory connectionFactory, TestListener testListener) {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory);
         container.setConcurrentConsumers(1);
@@ -41,7 +42,7 @@ public class RabbitConf extends RabbitConstants {
         container.setMessageListener(testListener);
 
         return container;
-    }*/
+    }
 
 
 }
